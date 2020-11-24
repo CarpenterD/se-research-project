@@ -30,7 +30,7 @@ Makes use of the [clang](https://clang.llvm.org/) compiler frontend.
 ```
 4. Run cmake to generate the makefile:
 ```bash
-    cmake cmake ../samples
+    cmake ../samples
 ```
 5. Return to main directory.
 ```bash
