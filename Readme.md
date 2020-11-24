@@ -6,35 +6,9 @@ This will eventuially become an automated code-style analysis/marking tool used 
 Makes use of the [clang](https://clang.llvm.org/) compiler frontend.
 
 ### To set up and run cmake
-1. Create and change to a directory called `build`:
+1. Replace the path locations in the setup script and run it:
 ```bash
-    mkdir build
-    cd build
-```
-2. Run cmake to generate the makefile:
-```bash
-    cmake .. -DCMAKE_PREFIX_PATH=/path/to/llvm
-```
-  - Where `/path/to/llvm` is the directory containing `llvm-config`.
-
-  - You also need to add the location of clang headers to your `CPATH` variable. This can be done using:
-
-```bash
-    export CPATH=/your_llvm_location/clang/include
-```
-3. Return to the main directory. Create and change to a directory called `samples_build`:
-```bash
-    cd ..
-    mkdir samples_build
-    cd samples_build
-```
-4. Run cmake to generate the makefile:
-```bash
-    cmake ../samples
-```
-5. Return to main directory.
-```bash
-    cd ..
+    ./setup.sh
 ```
 
 If you are adding code samples or other code files, don't forget to specify them in the relevant cmake file.
