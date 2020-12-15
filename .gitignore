@@ -1,0 +1,10 @@
+# workspace/env annoyances
+.DS_Store
+.vscode
+
+# ignore build directories
+/build
+/samples_build
+
+# ignore setup script for local configuration
+setup.sh
