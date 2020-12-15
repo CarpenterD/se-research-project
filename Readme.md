@@ -6,9 +6,9 @@ This will eventuially become an automated code-style analysis/marking tool used 
 Makes use of the [clang](https://clang.llvm.org/) compiler frontend.
 
 ### To set up and run cmake
-1. Replace the path locations in the setup script and run it:
+1. Replace the path locations in the setup script and run it in the current shell:
 ```bash
-    ./setup.sh
+    source setup.sh
 ```
 
 If you are adding code samples or other code files, don't forget to specify them in the relevant cmake file.

@@ -18,3 +18,5 @@ echo "- new path: $CPATH"
 cd samples_build
 echo "Making samples makefile..."
 cmake ../samples
+
+cd ../build
