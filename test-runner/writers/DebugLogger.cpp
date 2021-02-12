@@ -7,7 +7,7 @@
 
 DebugLogger::DebugLogger(std::string config){
     _config = config;
-    std::clog << "Logger initialised (writing to log stream). Config:\n" << _config << std::endl;
+    std::clog << "Logger initialised (writing to log stream). Config:\n" << _config << "\n" << std::endl;
 }
 
 std::string DebugLogger::FormatSrcLoc(SourceLocation loc){
@@ -16,7 +16,6 @@ std::string DebugLogger::FormatSrcLoc(SourceLocation loc){
 }
 
 void DebugLogger::LogSingleResult(TestResult result){
-    std::cout << "DebugLogger SINGLE" << std::endl;
     std::clog << "Marker: " << result.testName << std::endl;
     std::clog << "Description: " << result.testDescription << std::endl;
     std::clog << "Configuration Info: " << result.testInfo << std::endl;
@@ -38,7 +37,7 @@ void DebugLogger::LogSingleResult(TestResult result){
 }
 
 void DebugLogger::OutputResults(std::vector<TestResult> results){
-    std::cout << "DebugLogger" << std::endl;
+    std::clog << "----- RESULTS -----" << std::endl;
     for (size_t i = 0; i < results.size(); i++)
     {
         std::clog << "[Test " << i+1 << "/" << results.size() << "]" << std::endl;

@@ -5,6 +5,7 @@
 # ignore build directories
 /build
 /samples_build
+/test-runner/build
 
 # ignore setup script for local configuration
 setup.sh

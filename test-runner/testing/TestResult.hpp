@@ -7,8 +7,6 @@
 class TestResult
 {
     public:
-        TestResult();
-
         std::string testName;
         std::string testDescription; // description about the *purpose* of the test
         std::string testInfo; // information about *how* the test is configured
