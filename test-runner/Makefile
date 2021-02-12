@@ -8,6 +8,8 @@ MARKER_DIR = markers
 WRITER_DIR = writers
 TEST_DIR = testing
 
+ALL_DIRS = $(MARKER_DIR) $(WRITER_DIR) $(TEST_DIR)
+
 MARKERS = Marker MarkerRegistry StubMarker SimpleMarker
 WRITERS = ResultWriter WriterRegistry DebugLogger
 TEST_COMPS = TestResult SourceLocation
@@ -17,11 +19,12 @@ DEPS = $(MARKERS:%=$(BUILD_DIR)/$(MARKER_DIR)/%.o) $(WRITERS:%=$(BUILD_DIR)/$(WR
 $(TARGET_NAME): $(BUILD_DIR)/$(TARGET_NAME).o $(DEPS)
 	$(CC) $(CFLAGS) -o program $^
 
-$(BUILD_DIR)/%.o: ./%.cpp
+$(BUILD_DIR)/%.o: ./%.cpp | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR):
+	mkdir -pv $(ALL_DIRS:%=$(BUILD_DIR)/%)
 
 clean:
 	rm -fv $(TARGET_NAME)
-	rm -fv build/*.o
-	rm -fv build/$(MARKER_DIR)/*.o
-	rm -fv build/$(WRITER_DIR)/*.o
+	rm -frv $(BUILD_DIR)
