@@ -12,7 +12,7 @@ DebugLogger::DebugLogger(std::string config){
 
 std::string DebugLogger::FormatSrcLoc(SourceLocation loc){
     std::cout << "FSL" << std::endl;
-    return loc.GetFileName() + " " + std::to_string(loc.GetLineNumber()) + ":" + std::to_string(loc.GetColumnNumber());
+    return loc.fileName + " " + std::to_string(loc.line) + ":" + std::to_string(loc.column);
 }
 
 void DebugLogger::LogSingleResult(TestResult result){
@@ -29,7 +29,7 @@ void DebugLogger::LogSingleResult(TestResult result){
         std::string comment = result.feedback[i].second;
         std::clog << "- at " << FormatSrcLoc(loc);
         if (loc.hasSnippet){
-            std::clog << " - \"" << loc.GetCodeSnippet() << "\"";
+            std::clog << " - \"" << loc.snippet << "\"";
         }
         std::clog << std::endl;
         std::clog << "\t" << comment << std::endl;

@@ -3,27 +3,17 @@
 
 #include <string>
 
-class SourceLocation
+struct SourceLocation
 {
-    public:
-        // constructors
-        SourceLocation(std::string file, int line, int column);
-        SourceLocation(std::string file, int line, int column, std::string snippet);
+    SourceLocation(std::string file, int line, int column);
+    SourceLocation(std::string file, int line, int column, std::string snippet);
 
-        // utilities
-        bool hasSnippet;
+    std::string fileName;
+    int line;
+    int column;
+    std::string snippet;
 
-        // get-ers
-        std::string GetFileName();
-        int GetLineNumber();
-        int GetColumnNumber();
-        std::string GetCodeSnippet();
-
-    private:
-        std::string _fileName;
-        int _line;
-        int _column;
-        std::string _snippet;
+    bool hasSnippet;
 };
 
 #endif
