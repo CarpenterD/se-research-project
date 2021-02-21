@@ -11,7 +11,7 @@ UTIL_DIR = utils
 
 ALL_DIRS = $(MARKER_DIR) $(WRITER_DIR) $(TEST_DIR) $(UTIL_DIR)
 
-MARKERS = Marker MarkerRegistry StubMarker SimpleMarker
+MARKERS = Marker MarkerRegistry StubMarker SimpleMarker VowelCounter
 WRITERS = ResultWriter WriterRegistry DebugLogger
 TEST_COMPS = SourceLocation
 UTILS = ArgumentParser FileIO

@@ -5,6 +5,7 @@
 #include "Marker.hpp"
 #include "StubMarker.hpp"
 #include "SimpleMarker.hpp"
+#include "VowelCounter.hpp"
 
 Marker* MarkerRegistry::CreateMarker(std::string markerName, std::string config){
     
@@ -14,8 +15,9 @@ Marker* MarkerRegistry::CreateMarker(std::string markerName, std::string config)
         return new StubMarker(config);
     } else if (markerName=="SimpleMarker"){
         return new SimpleMarker(config);
+    } else if (markerName=="VowelCounter"){
+        return new VowelCounter(config);
     } else {
-        return nullptr;
+        throw std::invalid_argument("Unable to construct marker '" + markerName + "'. Name not recognised.");
     }
-
 }

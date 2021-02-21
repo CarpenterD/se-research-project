@@ -30,12 +30,20 @@ int main(int argc, char *argv[]){
     }
     
     // mark
-    std::vector<std::string> markers = {"StubMarker", "SimpleMarker"};
+    std::vector<std::string> markers = {"StubMarker", "SimpleMarker", "VowelCounter"};
     std::vector<TestResult> results;
     for (std::size_t i = 0; i < markers.size(); i++)
     {
-        Marker* someMarker = MarkerRegistry::CreateMarker(markers[i], "");
-        results.push_back( someMarker->Mark("helloworld.c") );
+        try
+        {
+            Marker* someMarker = MarkerRegistry::CreateMarker(markers[i], "");
+            results.push_back( someMarker->Mark(args.filePaths[0]) );
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << "error: In test '" + markers[i] + "': " << e.what() << std::endl;
+            // could exit here - depends on test config
+        }
     }
     
     writer->OutputResults(results);
