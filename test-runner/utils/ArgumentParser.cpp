@@ -4,6 +4,18 @@
 #include <unistd.h>
 #include <getopt.h>
 
+
+const std::string ArgumentParser::defaultConfigFile = "defaultConfig.xml";
+
+void ArgumentParser::PrintUsage(){
+    std::cout << "Usage:" << std::endl;
+    std::cout << "\tprogramName [OPTIONS] <filesToMark>" << std::endl;
+    std::cout << "Options:" << std::endl;
+    std::cout << "\t-h, --help:\n\t\tPrints usage information (this)" << std::endl;
+    std::cout << "\t-c, --config [file]:\n\t\tPath to XML configuration file" << std::endl;
+    std::cout << "\t-o, --outfile [file]:\n\t\tThe output file" << std::endl;
+}
+
 Arguments ArgumentParser::ParseArgs(int argc, char* argv[]){
     Arguments args;
     int optionsIndex = 0;
@@ -59,28 +71,25 @@ Arguments ArgumentParser::ParseArgs(int argc, char* argv[]){
         std::cerr << "error: no input files" << std::endl;
         PrintUsage();
         exit(EXIT_FAILURE);
-    } else {
-        std::cout << "Input file(s):" << std::endl;
-        for (size_t f = 0; f < args.filePaths.size(); f++)
-        {
-            std::cout << "\t" << args.filePaths[f] << std::endl;
-        }
     }
-    if (args.configPath != "") {
-        std::cout << "Config file: " << args.configPath << std::endl;
+
+    if (args.configPath == "") {
+        args.configPath = defaultConfigFile;
     }
+
+#ifdef DEBUG
+    std::cout << "Input file(s):" << std::endl;
+    for (size_t f = 0; f < args.filePaths.size(); f++)
+    {
+        std::cout << "\t" << args.filePaths[f] << std::endl;
+    }
+
+    std::cout << "Config file: " << args.configPath << std::endl;
+
     if (args.outputPath != "") {
         std::cout << "Output file: " << args.outputPath << std::endl;
     }
+#endif
 
     return args;
-}
-
-void ArgumentParser::PrintUsage(){
-    std::cout << "Usage:" << std::endl;
-    std::cout << "\tprogramName [OPTIONS] <filesToMark>" << std::endl;
-    std::cout << "Options:" << std::endl;
-    std::cout << "\t-h, --help:\n\t\tPrints usage information (this)" << std::endl;
-    std::cout << "\t-c, --config [file]:\n\t\tPath to XML configuration file" << std::endl;
-    std::cout << "\t-o, --outfile [file]:\n\t\tThe output file" << std::endl;
 }

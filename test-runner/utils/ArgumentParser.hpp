@@ -17,6 +17,7 @@ class ArgumentParser
         Arguments ParseArgs(int argc, char* argv[]);
     private:
         void PrintUsage();
+        static const std::string defaultConfigFile;
 };
 
 #endif
