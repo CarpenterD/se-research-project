@@ -6,12 +6,12 @@
 #include "DebugLogger.hpp"
 
 
-ResultWriter* WriterRegistry::CreateWriter(std::string writerName, std::string config){
+ResultWriter* WriterRegistry::CreateWriter(std::string writerName, std::ostream* stream, std::string config){
     
     // This implementation is not nearly complex enough for my liking
     
     if (writerName=="DebugLogger"){
-        return new DebugLogger(config);
+        return new DebugLogger(stream, config);
     } else {
         return nullptr;
     }

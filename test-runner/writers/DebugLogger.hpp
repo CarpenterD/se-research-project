@@ -1,6 +1,7 @@
 #ifndef DEBUG_LOGGER
 #define DEBUG_LOGGER
 
+#include <ostream>
 #include <string>
 #include "ResultWriter.hpp"
 #include "../testing/TestResult.hpp"
@@ -9,11 +10,12 @@
 class DebugLogger : public ResultWriter
 {
     public:
-        DebugLogger(std::string config);
+        DebugLogger(std::ostream* stream, std::string config);
         void OutputResults(std::vector<TestResult> results);
 
     private:
-        std::string _config;
+        std::string config;
+        std::ostream& output;
 
         void LogSingleResult(TestResult);
         std::string FormatSrcLoc(SourceLocation loc);

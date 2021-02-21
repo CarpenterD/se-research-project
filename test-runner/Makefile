@@ -14,7 +14,7 @@ ALL_DIRS = $(MARKER_DIR) $(WRITER_DIR) $(TEST_DIR) $(UTIL_DIR)
 MARKERS = Marker MarkerRegistry StubMarker SimpleMarker
 WRITERS = ResultWriter WriterRegistry DebugLogger
 TEST_COMPS = SourceLocation
-UTILS = ArgumentParser
+UTILS = ArgumentParser FileIO
 
 DEPS = $(MARKERS:%=$(BUILD_DIR)/$(MARKER_DIR)/%.o) $(WRITERS:%=$(BUILD_DIR)/$(WRITER_DIR)/%.o) $(TEST_COMPS:%=$(BUILD_DIR)/$(TEST_DIR)/%.o) $(UTILS:%=$(BUILD_DIR)/$(UTIL_DIR)/%.o)
 

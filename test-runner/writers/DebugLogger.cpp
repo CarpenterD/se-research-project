@@ -5,43 +5,43 @@
 #include "../testing/SourceLocation.hpp"
 #include "../testing/TestResult.hpp"
 
-DebugLogger::DebugLogger(std::string config){
-    _config = config;
-    std::clog << "Logger initialised (writing to log stream). Config:\n" << _config << "\n" << std::endl;
+DebugLogger::DebugLogger(std::ostream* stream, std::string config) : config(config), output(*stream){
+#ifdef DEBUG
+    std::cout << "Logger initialised (writing to log stream). Config:\n" << config << std::endl;
+#endif
 }
 
 std::string DebugLogger::FormatSrcLoc(SourceLocation loc){
-    std::cout << "FSL" << std::endl;
     return loc.fileName + " " + std::to_string(loc.line) + ":" + std::to_string(loc.column);
 }
 
 void DebugLogger::LogSingleResult(TestResult result){
-    std::clog << "Marker: " << result.testName << std::endl;
-    std::clog << "Description: " << result.testDescription << std::endl;
-    std::clog << "Configuration Info: " << result.testInfo << std::endl;
-    std::clog << "Remarks: " << result.remarks << std::endl;
-    std::clog << "SCORE = " << result.marksAwarded << "/" << result.marksTotal << std::endl;
-    std::clog << "Feedback (" << result.feedback.size() << "): " << std::endl;
+    output << "Marker: " << result.testName << std::endl;
+    output << "Description: " << result.testDescription << std::endl;
+    output << "Configuration Info: " << result.testInfo << std::endl;
+    output << "Remarks: " << result.remarks << std::endl;
+    output << "SCORE = " << result.marksAwarded << "/" << result.marksTotal << std::endl;
+    output << "Feedback (" << result.feedback.size() << "): " << std::endl;
     // print feedback items
     for (size_t i = 0; i < result.feedback.size(); i++)
     {
         SourceLocation loc = result.feedback[i].first;
         std::string comment = result.feedback[i].second;
-        std::clog << "- at " << FormatSrcLoc(loc);
+        output << "- at " << FormatSrcLoc(loc);
         if (loc.hasSnippet){
-            std::clog << " - \"" << loc.snippet << "\"";
+            output << " - \"" << loc.snippet << "\"";
         }
-        std::clog << std::endl;
-        std::clog << "\t" << comment << std::endl;
+        output << std::endl;
+        output << "\t" << comment << std::endl;
     }
 }
 
 void DebugLogger::OutputResults(std::vector<TestResult> results){
-    std::clog << "----- RESULTS -----" << std::endl;
+    output << "----- RESULTS -----" << std::endl;
     for (size_t i = 0; i < results.size(); i++)
     {
-        std::clog << "[Test " << i+1 << "/" << results.size() << "]" << std::endl;
+        output << "[Test " << i+1 << "/" << results.size() << "]" << std::endl;
         LogSingleResult(results[i]);
-        std::clog << std::endl;
+        output << std::endl;
     }
 }
