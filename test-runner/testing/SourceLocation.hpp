@@ -5,10 +5,10 @@
 
 struct SourceLocation
 {
-    SourceLocation(std::string file, int line, int column);
-    SourceLocation(std::string file, int line, int column, std::string snippet);
+    SourceLocation(std::string fileName, int lineNum, int columnNum);
+    SourceLocation(std::string fileName, int lineNum, int columnNum, std::string snippet);
 
-    std::string fileName;
+    std::string file;
     int line;
     int column;
     std::string snippet;

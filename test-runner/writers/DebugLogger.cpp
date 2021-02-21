@@ -12,7 +12,7 @@ DebugLogger::DebugLogger(std::ostream* stream, std::string config) : config(conf
 }
 
 std::string DebugLogger::FormatSrcLoc(SourceLocation loc){
-    return loc.fileName + " " + std::to_string(loc.line) + ":" + std::to_string(loc.column);
+    return loc.file + " " + std::to_string(loc.line) + ":" + std::to_string(loc.column);
 }
 
 void DebugLogger::LogSingleResult(TestResult result){
