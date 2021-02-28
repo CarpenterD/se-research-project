@@ -21,7 +21,7 @@ DEPS = $(MARKERS:%=$(BUILD_DIR)/$(MARKER_DIR)/%.o) $(WRITERS:%=$(BUILD_DIR)/$(WR
 $(TARGET_NAME): $(BUILD_DIR)/$(TARGET_NAME).o $(DEPS)
 	$(CC) $(CFLAGS) -o program $^
 
-$(BUILD_DIR)/%.o: ./%.cpp | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: ./src/%.cpp | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR):
