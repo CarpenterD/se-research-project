@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rootconfig>
+  <tests>
+    <test name="StubMarker"></test>
+    <test name="SimpleMarker"></test>
+  </tests>
+  <writer name="DebugWriter">
+  </writer>
+</rootconfig> 

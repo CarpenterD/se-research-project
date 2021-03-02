@@ -9,6 +9,7 @@
 #include "writers/WriterRegistry.hpp"
 #include "utils/ArgumentParser.hpp"
 #include "utils/FileIO.hpp"
+#include "utils/ConfigReader.hpp"
 
 int main(int argc, char *argv[]){
     ArgumentParser argParser;
@@ -18,6 +19,7 @@ int main(int argc, char *argv[]){
     try
     {
         //load xml configurations here etc.
+        RootConfig rootcfg = ConfigReader::ReadRootConfigurations(args.configPath);
 
         // initialise output
         std::ostream* outStream = CreateOutputStream(args.outputPath);

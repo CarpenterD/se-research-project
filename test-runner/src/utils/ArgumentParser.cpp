@@ -5,7 +5,7 @@
 #include <getopt.h>
 
 
-const std::string ArgumentParser::defaultConfigFile = "defaultConfig.xml";
+const std::string ArgumentParser::defaultConfigFile = "../config/defaultconfig.xml";
 
 void ArgumentParser::PrintUsage(){
     std::cout << "Usage:" << std::endl;
