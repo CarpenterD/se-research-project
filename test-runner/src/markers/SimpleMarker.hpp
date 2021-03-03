@@ -2,11 +2,12 @@
 #define SIMPLE_MARKER
 
 #include "Marker.hpp"
+#include "utils/Configurations.hpp"
 
 class SimpleMarker: public Marker
 {
     public:
-        SimpleMarker(std::string config);
+        SimpleMarker(TestConfig config);
 
         TestResult Mark(std::string file);
         std::string GetFeedback();

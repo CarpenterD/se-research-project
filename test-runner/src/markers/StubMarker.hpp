@@ -2,11 +2,12 @@
 #define STUB_MARKER
 
 #include "Marker.hpp"
+#include "utils/Configurations.hpp"
 
 class StubMarker: public Marker
 {
     public:
-        StubMarker(std::string config);
+        StubMarker(TestConfig config);
 
         TestResult Mark(std::string file);
 };

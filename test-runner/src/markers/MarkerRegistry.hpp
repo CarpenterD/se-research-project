@@ -5,12 +5,13 @@
 #include <map>
 
 #include "Marker.hpp"
+#include "utils/Configurations.hpp"
 
 class MarkerRegistry
 {
     public:
         //must return a reference as Marker is an "interface"
-        static Marker* CreateMarker(std::string markerName, std::string config);
+        static Marker* CreateMarker(TestConfig config);
 };
 
 #endif

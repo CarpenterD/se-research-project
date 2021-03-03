@@ -4,17 +4,18 @@
 #include <ostream>
 #include <string>
 #include "ResultWriter.hpp"
-#include "../testing/TestResult.hpp"
-#include "../testing/SourceLocation.hpp"
+#include "testing/TestResult.hpp"
+#include "testing/SourceLocation.hpp"
+#include "utils/Configurations.hpp"
 
 class DebugLogger : public ResultWriter
 {
     public:
-        DebugLogger(std::ostream* stream, std::string config);
+        DebugLogger(std::ostream* stream, OutputConfig config);
         void OutputResults(std::vector<TestResult> results);
 
     private:
-        std::string config;
+        OutputConfig config;
         std::ostream& output;
 
         void LogSingleResult(TestResult);

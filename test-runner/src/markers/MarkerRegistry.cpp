@@ -6,11 +6,12 @@
 #include "StubMarker.hpp"
 #include "SimpleMarker.hpp"
 #include "VowelCounter.hpp"
+#include "utils/configurations.hpp"
 
-Marker* MarkerRegistry::CreateMarker(std::string markerName, std::string config){
-    
+Marker* MarkerRegistry::CreateMarker(TestConfig config)
+{    
     // This implementation is not nearly complex enough for my liking
-
+    std::string markerName = config.TestName;
     if (markerName=="StubMarker"){
         return new StubMarker(config);
     } else if (markerName=="SimpleMarker"){

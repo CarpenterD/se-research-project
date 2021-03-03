@@ -19,7 +19,7 @@ struct TestConfig
     std::vector<ConfigOption> Options; 
 };
 
-struct WriterConfig
+struct OutputConfig
 {
     std::string WriterName;
     std::vector<ConfigOption> Options; 
@@ -29,7 +29,7 @@ struct RootConfig
 {
     // Other standard configurations go here
     std::vector<TestConfig> Tests;
-    WriterConfig Writer;
+    OutputConfig Ouput;
 };
 
 #endif

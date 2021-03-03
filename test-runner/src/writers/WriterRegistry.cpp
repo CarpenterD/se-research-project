@@ -6,14 +6,14 @@
 #include "DebugLogger.hpp"
 
 
-ResultWriter* WriterRegistry::CreateWriter(std::string writerName, std::ostream* stream, std::string config){
+ResultWriter* WriterRegistry::CreateWriter(std::ostream* stream, OutputConfig config){
     
     // This implementation is not nearly complex enough for my liking
-    
+    std::string writerName = config.WriterName;
     if (writerName=="DebugLogger"){
         return new DebugLogger(stream, config);
     } else {
-        return nullptr;
+        throw std::invalid_argument("Unable to construct writer '" + writerName + "'. Name not recognised.");
     }
 
 }

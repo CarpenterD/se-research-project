@@ -3,7 +3,8 @@
   <tests>
     <test name="StubMarker"></test>
     <test name="SimpleMarker"></test>
+    <test name="VowelCounter"></test>
   </tests>
-  <writer name="DebugWriter">
-  </writer>
+  <output name="DebugLogger">
+  </output>
 </rootconfig> 

@@ -3,8 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include "../utils/FileIO.hpp"
+#include "utils/Configurations.hpp"
 
-VowelCounter::VowelCounter(std::string config){
+VowelCounter::VowelCounter(TestConfig config){
 #ifdef DEBUG
     std::cout << "Creating VowelCounter (config=" << config << ")" << std::endl;
 #endif

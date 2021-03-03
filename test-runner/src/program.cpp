@@ -15,15 +15,17 @@ int main(int argc, char *argv[]){
     ArgumentParser argParser;
     Arguments args = argParser.ParseArgs(argc, argv);
     
+    RootConfig config;
+
     ResultWriter* writer;
     try
     {
         //load xml configurations here etc.
-        RootConfig rootcfg = ConfigReader::ReadRootConfigurations(args.configPath);
+        config = ConfigReader::ReadConfigurations(args.configPath);
 
         // initialise output
         std::ostream* outStream = CreateOutputStream(args.outputPath);
-        writer = WriterRegistry::CreateWriter("DebugLogger", outStream, "<config xml=\"no xml\"/>");
+        writer = WriterRegistry::CreateWriter(outStream, config.Ouput);
     }
     catch(const std::exception& e)
     {
@@ -32,22 +34,21 @@ int main(int argc, char *argv[]){
     }
     
     // mark
-    std::vector<std::string> markers = {"StubMarker", "SimpleMarker", "VowelCounter"};
     std::vector<TestResult> results;
-    for (std::size_t i = 0; i < markers.size(); i++)
+    for (std::size_t i = 0; i < config.Tests.size(); i++)
     {
         try
         {
-            Marker* someMarker = MarkerRegistry::CreateMarker(markers[i], "");
+            Marker* someMarker = MarkerRegistry::CreateMarker(config.Tests[i]);
             results.push_back( someMarker->Mark(args.filePaths[0]) );
         }
         catch(const std::exception& e)
         {
-            std::cerr << "error: In test '" + markers[i] + "': " << e.what() << std::endl;
+            std::cerr << "error: In test '" + config.Tests[i].TestName + "': " << e.what() << std::endl;
             // could exit here - depends on test config
         }
     }
-    
+
     writer->OutputResults(results);
 
     return EXIT_SUCCESS;
