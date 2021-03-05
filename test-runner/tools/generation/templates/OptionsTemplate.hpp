@@ -4,9 +4,8 @@
 #include <string>
 
 {{set.GetClassDocumentation()}}
-class {{set.GetClassName()}}
+struct {{set.GetClassName()}}
 {
-    private:
 {%- for opt in set.options %}
         {{opt.GetPropertyType()}} {{opt.GetPropertyName()}}; {{ "//!< "+opt.GetDocString() if opt.description }}
     {%- if opt.optional %}

@@ -35,10 +35,10 @@ class Option:
         self.optional = False
 
     def GetPropertyName(self):
-        return LowerFirstLetter(self.name)
+        return CapitaliseFirstLetter(self.name)
 
     def GetDefaultPropertyName(self):
-        return "default" + CapitaliseFirstLetter(self.name)
+        return "Default" + CapitaliseFirstLetter(self.name)
 
     def GetPropertyType(self):
         typeString = self.datatype
