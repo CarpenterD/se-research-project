@@ -1,6 +1,5 @@
 #include <iostream>
 #include "StubMarker.hpp"
-#include "utils/Configurations.hpp"
 
 StubMarker::StubMarker(TestConfig config){
     // std::cout << "Creating StubMarker (config=" << config << ")" << std::endl;

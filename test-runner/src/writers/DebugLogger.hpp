@@ -6,7 +6,6 @@
 #include "ResultWriter.hpp"
 #include "testing/TestResult.hpp"
 #include "testing/SourceLocation.hpp"
-#include "utils/Configurations.hpp"
 
 class DebugLogger : public ResultWriter
 {

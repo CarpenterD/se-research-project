@@ -2,7 +2,8 @@
 #define RESULT_WRITER
 
 #include <vector>
-#include "../testing/TestResult.hpp"
+#include "testing/TestResult.hpp"
+#include "utils/configuration/OutputConfig.hpp"
 
 class ResultWriter
 {

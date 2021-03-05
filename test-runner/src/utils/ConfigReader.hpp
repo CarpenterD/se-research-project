@@ -1,8 +1,8 @@
 #ifndef CONFIG_READER
 #define CONFIG_READER
 
-#include "Configurations.hpp"
-#include "../tinyxml2/tinyxml2.h"
+#include "utils/configuration/RootConfig.hpp"
+#include "tinyxml2/tinyxml2.h"
 
 namespace ConfigReader
 {

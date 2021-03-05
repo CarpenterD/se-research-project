@@ -6,7 +6,7 @@
 #include <map>
 
 #include "ResultWriter.hpp"
-#include "utils/Configurations.hpp"
+#include "utils/configuration/OutputConfig.hpp"
 
 class WriterRegistry
 {

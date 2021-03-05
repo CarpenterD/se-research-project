@@ -2,7 +2,6 @@
 #define VOWEL_COUNTER
 
 #include "Marker.hpp"
-#include "utils/Configurations.hpp"
 
 class VowelCounter: public Marker
 {

@@ -1,6 +1,5 @@
 #include <iostream>
 #include "SimpleMarker.hpp"
-#include "utils/Configurations.hpp"
 
 SimpleMarker::SimpleMarker(TestConfig config){
     // std::cout << "Creating SimpleMarker (config=" << config << ")" << std::endl;

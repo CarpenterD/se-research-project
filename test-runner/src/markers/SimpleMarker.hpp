@@ -2,7 +2,6 @@
 #define SIMPLE_MARKER
 
 #include "Marker.hpp"
-#include "utils/Configurations.hpp"
 
 class SimpleMarker: public Marker
 {

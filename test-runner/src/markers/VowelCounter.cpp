@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include "../utils/FileIO.hpp"
-#include "utils/Configurations.hpp"
 
 VowelCounter::VowelCounter(TestConfig config){
 #ifdef DEBUG

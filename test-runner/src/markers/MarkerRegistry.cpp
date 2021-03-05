@@ -6,7 +6,6 @@
 #include "StubMarker.hpp"
 #include "SimpleMarker.hpp"
 #include "VowelCounter.hpp"
-#include "utils/configurations.hpp"
 
 Marker* MarkerRegistry::CreateMarker(TestConfig config)
 {    

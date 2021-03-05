@@ -2,8 +2,8 @@
 #include <string>
 
 #include "DebugLogger.hpp"
-#include "../testing/SourceLocation.hpp"
-#include "../testing/TestResult.hpp"
+#include "testing/SourceLocation.hpp"
+#include "testing/TestResult.hpp"
 
 DebugLogger::DebugLogger(std::ostream* stream, OutputConfig config) : config(config), output(*stream){
 #ifdef DEBUG

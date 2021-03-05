@@ -5,7 +5,7 @@
 #include <map>
 
 #include "Marker.hpp"
-#include "utils/Configurations.hpp"
+#include "utils/configuration/TestConfig.hpp"
 
 class MarkerRegistry
 {
