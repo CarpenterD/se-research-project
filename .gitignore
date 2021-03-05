@@ -1,6 +1,7 @@
 # workspace/env annoyances
 .DS_Store
 .vscode
+__pycache__
 
 # ignore build directories
 /build
