@@ -26,7 +26,8 @@ RootConfig ConfigReader::ReadConfigurations(std::string configFile)
     return internal::ParseRootConfig(rootNode);
 }
 
-// internal methods
+// INTERNAL METHODS -----------------------------
+
 RootConfig ConfigReader::internal::ParseRootConfig(tinyxml2::XMLElement* rootNode)
 {
     RootConfig config;
@@ -71,13 +72,9 @@ TestConfig ConfigReader::internal::ParseTestConfig(tinyxml2::XMLElement* testNod
         throw std::invalid_argument( "Test element is null." );
     }
 
-    // parse test name
-    const tinyxml2::XMLAttribute* nameAttr = testNode->FindAttribute("name");
-    if (nameAttr==NULL)
-    {
-        throw std::invalid_argument( "Test configuration on line " + std::to_string(testNode->GetLineNum()) + " has no 'name' attribute." );
-    }
-    config.TestName = nameAttr->Value();
+    config.TestName = GetElementName(testNode);
+
+    ParseConfigOptions(testNode, config.Options);
 
     return config;
 }
@@ -92,13 +89,71 @@ OutputConfig ConfigReader::internal::ParseOutputConfig(tinyxml2::XMLElement* out
         throw std::invalid_argument( "Output element is null." );
     }
 
-    // parse test name
-    const tinyxml2::XMLAttribute* nameAttr = outputNode->FindAttribute("name");
-    if (nameAttr==NULL)
-    {
-        throw std::invalid_argument( "Output configuration on line " + std::to_string(outputNode->GetLineNum()) + " has no 'name' attribute." );
-    }
-    config.WriterName = nameAttr->Value();
+    config.WriterName = GetElementName(outputNode);
     
     return config;
+}
+
+// Parse xml configuration elements into internal struct
+
+ConfigOption ConfigReader::internal::ParseConfigOption(tinyxml2::XMLElement* element)
+{
+    if (element == NULL)
+    {
+        throw std::runtime_error( "XML element is null. Unable to parse config option");
+    }
+    
+    ConfigOption option;
+    option.Name = GetElementName(element);
+    //parse value(s)
+    if (element->NoChildren() || element->FirstChildElement("value") == NULL)
+    {
+        throw std::runtime_error( "XML element on line "+ std::to_string(element->GetLineNum()) + " contains no 'value' child element. Unable to parse config option.");
+    }
+    for (tinyxml2::XMLElement* value = element->FirstChildElement("value"); value; value = value->NextSiblingElement("value"))
+    {
+        if (value->GetText() != NULL)
+        {
+            option.Values.push_back(value->GetText());
+        }
+        else
+        {
+            option.Values.push_back("");
+        }
+        option.Value = option.Values.back(); //set value to be the most recently (last) parsed value in the list
+    }
+    option.IsListProperty = option.Values.size() > 1;
+    return option;
+}
+
+void ConfigReader::internal::ParseConfigOptions(tinyxml2::XMLElement* parent, std::vector<ConfigOption> &optionList)
+{
+    tinyxml2::XMLElement* element = parent->FirstChildElement("option");
+    while (element != NULL)
+    {
+        try
+        {
+            optionList.push_back( ParseConfigOption(element) );
+        }
+        catch(const std::exception& e)
+        {
+            #ifdef DEBUG
+            std::clog << "Exception thrown while parsing config option -> " << e.what() << std::endl;
+            #endif
+            // do nothing
+        }
+        element = element->NextSiblingElement();
+    }
+}
+
+// HELPERS --------------------------------------
+
+std::string ConfigReader::internal::GetElementName(tinyxml2::XMLElement* element)
+{
+    const tinyxml2::XMLAttribute* nameAttr = element->FindAttribute("name");
+    if (nameAttr==NULL)
+    {
+        throw std::runtime_error( "Unable to retrieve 'name' attribute of XMLElement on line " + std::to_string(element->GetLineNum()));
+    }
+    return nameAttr->Value();
 }

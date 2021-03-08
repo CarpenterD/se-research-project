@@ -37,14 +37,34 @@ int main(int argc, char *argv[]){
     std::vector<TestResult> results;
     for (std::size_t i = 0; i < config.Tests.size(); i++)
     {
+        TestConfig &cfg = config.Tests[i];
         try
         {
-            Marker* someMarker = MarkerRegistry::CreateMarker(config.Tests[i]);
+            #ifdef DEBUG
+            //write config options for test
+            std::clog << "ConfigOptions for '" + cfg.TestName + "':" << std::endl;
+            for (size_t j = 0; j < cfg.Options.size(); j++)
+            {
+                std::clog << "\tName: '" << cfg.Options[j].Name;
+                if (cfg.Options[j].IsListProperty){
+                    std::clog << "' Values: ";
+                    for (size_t k = 0; k < cfg.Options[j].Values.size()-1; k++)
+                    {
+                        std::clog << "'" << cfg.Options[j].Values[k] << "', ";
+                    }
+                    std::clog << "'" << cfg.Options[j].Values.back() << "'" << std::endl;
+                }else{
+                    std::clog << "' Value: '" << cfg.Options[j].Value << "'" << std::endl;
+                }
+            }
+            #endif
+
+            Marker* someMarker = MarkerRegistry::CreateMarker(cfg);
             results.push_back( someMarker->Mark(args.filePaths[0]) );
         }
         catch(const std::exception& e)
         {
-            std::cerr << "error: In test '" + config.Tests[i].TestName + "': " << e.what() << std::endl;
+            std::cerr << "error: In test '" + cfg.TestName + "': " << e.what() << std::endl;
             // could exit here - depends on test config
         }
     }
