@@ -2,7 +2,10 @@
 #include "StubMarker.hpp"
 
 StubMarker::StubMarker(TestConfig config){
-    // std::cout << "Creating StubMarker (config=" << config << ")" << std::endl;
+#ifdef DEBUG
+    std::cout << "Creating StubMarker" << std::endl;
+#endif
+    StdOptions::Initialise(config.Options);
 }
 
 TestResult StubMarker::Mark(std::string file){
@@ -10,7 +13,7 @@ TestResult StubMarker::Mark(std::string file){
     result.testName = "StubMarker";
     result.testDescription = "StubMarker - don't take results from this one too seriously...";
     result.remarks = "This just a stub, but this code probably looks alright.";
-    result.marksTotal = 5;
-    result.marksAwarded = 5;
+    result.marksTotal = MarksAvailable;
+    result.marksAwarded = MarksAvailable;
     return result;
 }

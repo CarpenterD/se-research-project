@@ -6,7 +6,7 @@
 
 VowelCounter::VowelCounter(TestConfig config){
 #ifdef DEBUG
-    std::cout << "Creating VowelCounter (config=" << config << ")" << std::endl;
+    std::cout << "Creating VowelCounter" << std::endl;
 #endif
 }
 

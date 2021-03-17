@@ -4,20 +4,15 @@
     <test name="StubMarker">
       <option name="severity"><value>brutal</value></option>
       <option name="pityMarks"><value>0</value></option>
+      <option name="MarksAvailable"><value>1</value></option>
     </test>
     <test name="SimpleMarker">
-      <option name="powersOfTwo">
-        <value>1</value>
-        <value>2</value>
-        <value>4</value>
-        <value>8</value>
-        <value>16</value>
-        <value>32</value>
-        <value>64</value>
-        <value></value>
-      </option>
+      <option name="MarksAvailable"><value>5</value></option>
+      <option name="FeedbackMessage"><value>Good Work!</value></option>
+      <option name="BonusMarks"><value>2</value></option>
     </test>
     <test name="VowelCounter">
+      <option name="MarksAvailable"><value>1</value></option>
       <option name="caseInsensitive"><value>true</value></option>
       <option name="badOption"></option>
     </test>

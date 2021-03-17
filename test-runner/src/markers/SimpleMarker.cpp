@@ -2,7 +2,10 @@
 #include "SimpleMarker.hpp"
 
 SimpleMarker::SimpleMarker(TestConfig config){
-    // std::cout << "Creating SimpleMarker (config=" << config << ")" << std::endl;
+#ifdef DEBUG
+    std::cout << "Creating SimpleMarker" << std::endl;
+#endif
+    SimpleOptions::Initialise(config.Options);
 }
 
 TestResult SimpleMarker::Mark(std::string file){
@@ -10,7 +13,7 @@ TestResult SimpleMarker::Mark(std::string file){
     result.testName = "Simple Marker";
     result.testDescription = "Simple Marker - marking is simple, right?";
     result.marksTotal = 5;
-    result.marksAwarded = 3;
-    result.remarks = "For a brick, he flew pretty good!";
+    result.marksAwarded = 3 + BonusMarks;
+    result.remarks = FeedbackMessage;
     return result;
 }

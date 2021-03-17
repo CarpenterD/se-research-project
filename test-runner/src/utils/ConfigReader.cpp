@@ -26,6 +26,35 @@ RootConfig ConfigReader::ReadConfigurations(std::string configFile)
     return internal::ParseRootConfig(rootNode);
 }
 
+ConfigOption *ConfigReader::GetConfigOption(std::vector<ConfigOption> &options, std::string name, std::string optionSet)
+{
+    if (name == "")
+    {
+        throw std::invalid_argument("Unable to find config option; 'name' cannot be empty.");
+    }
+
+    ConfigOption *bestMatch = NULL;
+
+    for (size_t i = 0; i < options.size(); i++)
+    {
+        if (options[i].Name != name)
+        {
+            continue;
+        }
+        // mark first match (but keep checking for a better one)
+        if (bestMatch == NULL)
+        {
+            bestMatch = &options[i];
+        }
+        // return if perfect match found
+        if (optionSet != "" && optionSet == options[i].OptionSet)
+        {
+            return &options[i];
+        }
+    }
+    return bestMatch;
+}
+
 // INTERNAL METHODS -----------------------------
 
 RootConfig ConfigReader::internal::ParseRootConfig(tinyxml2::XMLElement* rootNode)
@@ -73,8 +102,16 @@ TestConfig ConfigReader::internal::ParseTestConfig(tinyxml2::XMLElement* testNod
     }
 
     config.TestName = GetElementName(testNode);
-
     ParseConfigOptions(testNode, config.Options);
+
+    // manually add config option for test name so it can be parsed back later
+    ConfigOption nameOption;
+    nameOption.Name = "TestName";
+    nameOption.Value = config.TestName;
+    config.Options.push_back(nameOption);
+
+    // parse std options into config
+    ParseStdTestOptions(config);
 
     return config;
 }
@@ -105,7 +142,15 @@ ConfigOption ConfigReader::internal::ParseConfigOption(tinyxml2::XMLElement* ele
     
     ConfigOption option;
     option.Name = GetElementName(element);
-    //parse value(s)
+
+    // read optionSet if it is given
+    const tinyxml2::XMLAttribute* osAttr = element->FindAttribute("optionSet");
+    if (osAttr != NULL)
+    {
+        option.OptionSet = osAttr->Value();
+    }
+
+    // parse value(s)
     if (element->NoChildren() || element->FirstChildElement("value") == NULL)
     {
         throw std::runtime_error( "XML element on line "+ std::to_string(element->GetLineNum()) + " contains no 'value' child element. Unable to parse config option.");

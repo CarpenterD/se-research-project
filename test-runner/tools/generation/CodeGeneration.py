@@ -7,8 +7,9 @@ import options
 
 # constants -------------------------------------
 SRC_DIR = "../../src"
-OPTIONS_DIR = f"{SRC_DIR}/markers/options/"
-TEST_CONFIG_DIR = f"{SRC_DIR}/utils/configuration/"
+OPTIONS_DIR = f"{SRC_DIR}/markers/options"
+UTILS_DIR = f"{SRC_DIR}/utils"
+TEST_CONFIG_DIR = f"{UTILS_DIR}/configuration"
 FILE_SUFFIX = ".generated"
 
 # helper functions ------------------------------
@@ -21,8 +22,10 @@ def RemoveGeneratedFiles(path):
 # main code -------------------------------------
 print("Initialising templates")
 env = Environment( loader=FileSystemLoader('templates') )
-optionsTemplate = env.get_template('OptionsTemplate.hpp')
+optionHdrTemplate = env.get_template('OptionsTemplate.hpp')
+optionSrcTemplate = env.get_template('OptionsTemplate.cpp')
 testConfigTemplate = env.get_template('TestConfigTemplate.hpp')
+configReaderTemplate = env.get_template('ConfigReaderTemplate.cpp')
 
 # get options from file
 inputFile = "markerOptions.json"
@@ -42,16 +45,32 @@ RemoveGeneratedFiles(OPTIONS_DIR)
 # generate option files
 print(f"Generating option sets")
 for optSet in optionSets:
-    outputPath = OPTIONS_DIR + optSet.name + FILE_SUFFIX + ".hpp"
+    # header
+    headerName = optSet.name + FILE_SUFFIX + ".hpp"
+    outputPath = f"{OPTIONS_DIR}/{headerName}"
     print(f"\t{outputPath}")
     with open(outputPath, mode='w') as outfile:
-        templateStream = optionsTemplate.stream(set = optSet)
+        templateStream = optionHdrTemplate.stream(set = optSet)
+        templateStream.dump(outfile)
+
+    # src
+    outputPath = f"{OPTIONS_DIR}/{optSet.name}{FILE_SUFFIX}.cpp"
+    print(f"\t{outputPath}")
+    with open(outputPath, mode='w') as outfile:
+        templateStream = optionSrcTemplate.stream(set = optSet, headerName = headerName)
         templateStream.dump(outfile)
 
 # generate test config struct
 print(f"Generating 'TestConfig.hpp'")
-outputPath = TEST_CONFIG_DIR + "TestConfig.hpp" #no '.generated' to prevent against deletion
+outputPath = f"{TEST_CONFIG_DIR}/TestConfig.hpp" #no '.generated' to prevent against deletion
 with open(outputPath, mode='w') as outfile:
         templateStream = testConfigTemplate.stream(options = stdOptions)
+        templateStream.dump(outfile)
+
+# generate config reader file to parse test std options into one 
+print(f"Generating 'ConfigReader" + FILE_SUFFIX + ".cpp'")
+outputPath = f"{UTILS_DIR}/ConfigReader{FILE_SUFFIX}.cpp"
+with open(outputPath, mode='w') as outfile:
+        templateStream = configReaderTemplate.stream(options = stdOptions)
         templateStream.dump(outfile)
 print("Done.")

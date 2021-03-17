@@ -9,7 +9,8 @@ struct ConfigOption
     std::string Name;
     std::string Value;
     std::vector<std::string> Values;
-    bool IsListProperty;
+    std::string OptionSet;
+    bool IsListProperty = false;
 };
 
 #endif

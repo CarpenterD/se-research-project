@@ -7,6 +7,13 @@
 namespace ConfigReader
 {
     RootConfig ReadConfigurations(std::string configFile);
+
+    /**
+     * Returns a ConfigOption from a collection, matched by name and parent option set.
+     * If multiple matches are found the first match is returned, with a preference given to a match with both name and option set.
+    */
+    ConfigOption *GetConfigOption(std::vector<ConfigOption> &options, std::string name, std::string optionSet = "");
+
     // internal namespace to to disuade external use
     namespace internal
     {
@@ -18,6 +25,7 @@ namespace ConfigReader
         // Parse xml config elements into internal structure
         ConfigOption ParseConfigOption(tinyxml2::XMLElement* element);
         void ParseConfigOptions(tinyxml2::XMLElement* firstOption, std::vector<ConfigOption> &optionList);
+        void ParseStdTestOptions(TestConfig &config);
 
         // helper function
         std::string GetElementName(tinyxml2::XMLElement* element);

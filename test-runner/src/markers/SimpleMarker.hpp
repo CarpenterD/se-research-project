@@ -2,8 +2,9 @@
 #define SIMPLE_MARKER
 
 #include "Marker.hpp"
+#include "markers/options/SimpleOptions.generated.hpp"
 
-class SimpleMarker: public Marker
+class SimpleMarker: public Marker, public SimpleOptions
 {
     public:
         SimpleMarker(TestConfig config);

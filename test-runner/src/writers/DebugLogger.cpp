@@ -7,7 +7,7 @@
 
 DebugLogger::DebugLogger(std::ostream* stream, OutputConfig config) : config(config), output(*stream){
 #ifdef DEBUG
-    std::cout << "Logger initialised (writing to log stream). Config:\n" << config << std::endl;
+    std::cout << "Logger initialised (writing to log stream)" << std::endl;
 #endif
 }
 
