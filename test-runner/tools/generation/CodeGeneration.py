@@ -7,10 +7,21 @@ import options
 
 # constants -------------------------------------
 SRC_DIR = "../../src"
+TEMPLATE_ENV = "templates"
 OPTIONS_DIR = f"{SRC_DIR}/markers/options"
 UTILS_DIR = f"{SRC_DIR}/utils"
 TEST_CONFIG_DIR = f"{UTILS_DIR}/configuration"
 FILE_SUFFIX = ".generated"
+
+# parse arguments -------------------------------
+parser = argparse.ArgumentParser(description="Generate source files for 'stylemarker'")
+parser.add_argument('opts', help="JSON file containing configuration options for stylemarker")
+parser.add_argument('-o', '--output', default=SRC_DIR, help="Path to the stylemarker 'src' directory.")
+parser.add_argument('-t', '--templateLocation', default=TEMPLATE_ENV, help="The directory containing template files.")
+args = parser.parse_args()
+OPT_FILE = args.opts
+SRC_DIR = args.output
+TEMPLATE_ENV = args.templateLocation
 
 # helper functions ------------------------------
 def RemoveGeneratedFiles(path):
@@ -20,17 +31,26 @@ def RemoveGeneratedFiles(path):
         os.remove(file)
 
 # main code -------------------------------------
-print("Initialising templates")
-env = Environment( loader=FileSystemLoader('templates') )
-optionHdrTemplate = env.get_template('OptionsTemplate.hpp')
-optionSrcTemplate = env.get_template('OptionsTemplate.cpp')
-testConfigTemplate = env.get_template('TestConfigTemplate.hpp')
-configReaderTemplate = env.get_template('ConfigReaderTemplate.cpp')
+print(f"Initialising template environment '{TEMPLATE_ENV}'")
+try:
+    env = Environment( loader=FileSystemLoader(TEMPLATE_ENV) )
+    optionHdrTemplate = env.get_template('OptionsTemplate.hpp')
+    optionSrcTemplate = env.get_template('OptionsTemplate.cpp')
+    testConfigTemplate = env.get_template('TestConfigTemplate.hpp')
+    configReaderTemplate = env.get_template('ConfigReaderTemplate.cpp')
+except:
+    print("error: unable to initialise template environment.")
+    parser.print_usage()
+    exit()
 
 # get options from file
-inputFile = "markerOptions.json"
-print(f"Loading options from '{inputFile}'")
-stdOptions, optionSets = options.LoadOptionsFromJson(inputFile)
+print(f"Loading options from '{OPT_FILE}'")
+try:
+    stdOptions, optionSets = options.LoadOptionsFromJson(OPT_FILE)
+except:
+    print("error: unable to open options file")
+    parser.print_usage()
+    exit()
 
 stdOptionSet = options.OptionSet("StdOptions")
 stdOptionSet.options = stdOptions
