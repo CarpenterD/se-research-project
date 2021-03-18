@@ -13,9 +13,9 @@ Makes use of the [clang](https://clang.llvm.org/) compiler frontend.
 
 If you are adding code samples or other code files, don't forget to specify them in the relevant cmake file.
 
-### To build programs and code samples
-Code samples can be built with `make` in the `samples_build` directory.
+Use `-DCMAKE_BUILD_TYPE=[Release/Debug]` to turn on or off additional debugging information.
 
+### To build programs and code samples
 Main system code can be built with `make` in the `build` directory.
 
 ### To run the code
