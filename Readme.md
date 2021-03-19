@@ -21,9 +21,8 @@ Main system code can be built with `make` in the `build` directory.
 ### To run the code
 Run the code from the `build` directory with the following command:
 ```
-    ./<executable_name> -p=../samples_build <target_file>
+    ./stylemarker <target_file>
 ```
-Note that the `-p=../samples_build` option is only used for establishing the ClangTool context and can be ommitted.
 
 ### Useful things
 - [clang doxygen docs](https://clang.llvm.org/doxygen/index.html)
