@@ -6,10 +6,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(stylemarker)
 
 # Define paths and find llvm ---------------------------------------------
+if(NOT DEFINED LLVM_ROOT)
+  message(WARNING "LLVM_ROOT directory is not defined, attempting to use current directory")
+  set(LLVM_ROOT .)
+endif()
+
 set(SRC_DIR src)
-set(CLANG_ROOT /home/dylan/llvm-project)
+
 message(STATUS "Source dir '${SRC_DIR}'")
-message(STATUS "LLVM root dir '${CLANG_ROOT}'")
+message(STATUS "LLVM root dir '${LLVM_ROOT}'")
+
+set(LLVM_DIR ${LLVM_ROOT}/build/lib/cmake/llvm) # special variable used by find_package
 
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
@@ -51,12 +58,12 @@ add_executable(stylemarker ${SOURCES})
 # Include includes -------------------------------------------------------
 # src
 target_include_directories(stylemarker  PRIVATE ${SRC_DIR}
-                                        PRIVATE ${CLANG_ROOT}/clang/include
-                                        PRIVATE ${CLANG_ROOT}/build/tools/clang/include)
+                                        PRIVATE ${LLVM_ROOT}/clang/include
+                                        PRIVATE ${LLVM_ROOT}/build/tools/clang/include)
 
 # and libraries...
 target_link_libraries(stylemarker ${LIBRARY_LIST})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-strict-aliasing -fno-rtti -fuse-ld=gold")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-strict-aliasing -fno-rtti -fuse-ld=lld")
 target_link_libraries(stylemarker
     LLVMX86AsmParser # MC, MCParser, Support, X86Desc, X86Info
     LLVMX86Desc # MC, Support, X86AsmPrinter, X86Info

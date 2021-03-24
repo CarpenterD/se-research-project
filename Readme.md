@@ -6,23 +6,31 @@ This will eventuially become an automated code-style analysis/marking tool used 
 Makes use of the [clang](https://clang.llvm.org/) compiler frontend.
 
 ### To set up and run cmake
-1. Replace the path locations in the setup script and run it in the current shell:
+Create a directory `build`, change to it and call `cmake` on the parent directory.
 ```bash
-    source setup.sh
+    mkdir build
+    cd build
+    cmake .. -DLLVM_ROOT=<YourLLVMLocation>
 ```
+*Note* - you must first [clone and build the llvm source repository](https://clang.llvm.org/get_started.html "Getting Started with Clang"). `<YourLLVMLocation>` is the root directory of that repository.
 
-If you are adding code samples or other code files, don't forget to specify them in the relevant cmake file.
+If you are adding code samples or other code files, don't forget to specify them in `CMakeLists.txt`.
 
-Use `-DCMAKE_BUILD_TYPE=[Release/Debug]` to turn on or off additional debugging information.
 
-### To build programs and code samples
-Main system code can be built with `make` in the `build` directory.
+You may also use `-DCMAKE_BUILD_TYPE=[Release/Debug]` to turn on or off additional debugging information.
+
+### To build the main program
+Main system code can be built with `make` from the `build` directory.
+```bash
+    make
+```
 
 ### To run the code
 Run the code from the `build` directory with the following command:
 ```
     ./stylemarker <target_file>
 ```
+(or use the `--help` option to display usage)
 
 ### Useful things
 - [clang doxygen docs](https://clang.llvm.org/doxygen/index.html)
