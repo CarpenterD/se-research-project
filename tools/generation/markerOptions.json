@@ -29,6 +29,36 @@
                     "defaultValue": 0
                 }
             ]
+        },
+        {
+            "name": "CompilerOptions",
+            "description": "Options for compiling source code and specifying the behaviour of the clang compiler.",
+            "options": [
+                {
+                    "name": "Flags",
+                    "type": "string",
+                    "description": "Flags to pass on to compiler",
+                    "defaultValue": ""
+                }
+            ]
+        },
+        {
+            "name": "FuncLenMkrOptions",
+            "description": "Options used by the 'FunctionLengthMarker' class.",
+            "options": [
+                {
+                    "name": "SuggestionThreshold",
+                    "type": "int",
+                    "description": "The threshold for function length above which the program should make a suggestion",
+                    "defaultValue": "40"
+                },
+                {
+                    "name": "AcceptableThreshold",
+                    "type": "int",
+                    "description": "The upper threshold for acceptable function length. Penalties issued for exceeding this length.",
+                    "defaultValue": "60"
+                }
+            ]
         }
     ]
 }

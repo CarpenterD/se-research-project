@@ -6,6 +6,7 @@
 #include "StubMarker.hpp"
 #include "SimpleMarker.hpp"
 #include "VowelCounter.hpp"
+#include "FunctionLengthMarker.hpp"
 
 Marker* MarkerRegistry::CreateMarker(TestConfig config)
 {    
@@ -15,6 +16,8 @@ Marker* MarkerRegistry::CreateMarker(TestConfig config)
         return new StubMarker(config);
     } else if (markerName=="SimpleMarker"){
         return new SimpleMarker(config);
+    } else if (markerName=="FunctionLengthMarker"){
+        return new FunctionLengthMarker(config);
     } else if (markerName=="VowelCounter"){
         return new VowelCounter(config);
     } else {
