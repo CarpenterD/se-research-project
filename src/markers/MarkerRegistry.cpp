@@ -7,6 +7,7 @@
 #include "SimpleMarker.hpp"
 #include "VowelCounter.hpp"
 #include "FunctionLengthMarker.hpp"
+#include "IndentationCheck.hpp"
 
 Marker* MarkerRegistry::CreateMarker(TestConfig config)
 {    
@@ -18,6 +19,8 @@ Marker* MarkerRegistry::CreateMarker(TestConfig config)
         return new SimpleMarker(config);
     } else if (markerName=="FunctionLengthMarker"){
         return new FunctionLengthMarker(config);
+    } else if (markerName=="IndentationCheck"){
+        return new IndentationCheck(config);
     } else if (markerName=="VowelCounter"){
         return new VowelCounter(config);
     } else {
