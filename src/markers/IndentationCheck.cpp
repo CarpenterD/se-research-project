@@ -21,13 +21,17 @@
 // ------------------------------------------------------------------------
 namespace
 {
-    class CompoundStmtVisitor: public clang::RecursiveASTVisitor<CompoundStmtVisitor>
+    class Visitor: public clang::RecursiveASTVisitor<Visitor>
     {
         public:
             std::vector<clang::CompoundStmt *> stmts;
+            std::vector<clang::VarDecl *> vars;
+            std::vector<clang::RecordDecl *> records;
             
-            explicit CompoundStmtVisitor(clang::SourceManager& sm);
+            explicit Visitor(clang::SourceManager& sm);
             bool VisitCompoundStmt(clang::CompoundStmt* stmt);
+            bool VisitVarDecl(clang::VarDecl* decl);
+            bool VisitRecordDecl(clang::RecordDecl* decl);
             
         private:
             clang::SourceManager& sm;
@@ -44,7 +48,7 @@ namespace
         private:
             clang::ASTContext &ctx;
             clang::SourceManager &sm;
-            CompoundStmtVisitor compoundStmtVisitor;
+            Visitor visitor;
 
             IndentationCheck &marker;
             
@@ -68,30 +72,55 @@ namespace
         SourceLocation loc(sm.getFilename(sl).str(), sm.getSpellingLineNumber(sl), sm.getSpellingColumnNumber(sl));
         return loc;
     };
+
+    std::string FormatLocationRange(SourceLocation beg, SourceLocation end, bool collapse=false) {
+        if (collapse) {
+            std::string line = (beg.line==end.line)? std::to_string(beg.line) : std::to_string(beg.line) + "->" + std::to_string(end.line);
+            std::string clmn = (beg.column==end.column)? std::to_string(beg.column) : std::to_string(beg.column) + "->" + std::to_string(end.column);
+            return "("+line+":"+clmn+")";
+        } else {
+            return "(" + std::to_string(beg.line) + ":" + std::to_string(beg.column) + ") -> (" + std::to_string(end.line) + ":" + std::to_string(end.column) + ")";
+        }
+    }
 }
 
 
 // ------------------------------------------------------------------------
-// Definitions for CompoundStmtVisitor
+// Definitions for Visitor
 // ------------------------------------------------------------------------
 // constructor
-CompoundStmtVisitor::CompoundStmtVisitor(clang::SourceManager& sm)
+Visitor::Visitor(clang::SourceManager& sm)
     : sm(sm)
 {
     // empty constructor
 }
 
 // (override) recursive AST visiting function 
-bool CompoundStmtVisitor::VisitCompoundStmt(clang::CompoundStmt* stmt)
+bool Visitor::VisitCompoundStmt(clang::CompoundStmt* stmt)
 {
     if (stmt != NULL && sm.isWrittenInMainFile(stmt->getSourceRange().getBegin()))
     {
-#ifdef DEBUG
-        SourceLocation lb = ConvertSrcLoc(sm, stmt->getLBracLoc());
-        SourceLocation rb = ConvertSrcLoc(sm, stmt->getRBracLoc());
-        std::clog << "Found CompoundStmt from (" << lb.line << ":" << lb.column << ") to (" << rb.line << ":" << rb.column << ")" << std::endl;
-#endif
         stmts.push_back(stmt);
+    }
+    return true;
+}
+
+// (override) recursive AST visiting function 
+bool Visitor::VisitVarDecl(clang::VarDecl* decl)
+{
+    if (decl != NULL && sm.isWrittenInMainFile(decl->getSourceRange().getBegin()) && decl->hasGlobalStorage() && !decl->isStaticLocal())
+    {
+        vars.push_back(decl);
+    }
+    return true;
+}
+
+// (override) recursive AST visiting function 
+bool Visitor::VisitRecordDecl(clang::RecordDecl *decl)
+{
+    if (decl != NULL && sm.isWrittenInMainFile(decl->getSourceRange().getBegin()))
+    {
+        records.push_back(decl);
     }
     return true;
 }
@@ -102,20 +131,63 @@ bool CompoundStmtVisitor::VisitCompoundStmt(clang::CompoundStmt* stmt)
 // Definitions for MyASTConsumer
 // ------------------------------------------------------------------------
 ICASTConsumer::ICASTConsumer(clang::CompilerInstance& ci, IndentationCheck &marker)
-    : ctx(ci.getASTContext()), sm(ci.getSourceManager()), compoundStmtVisitor(sm), marker(marker)
+    : ctx(ci.getASTContext()), sm(ci.getSourceManager()), visitor(sm), marker(marker)
 {
     // empty constructor
 }
 
 void ICASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
     // find function definitions and process one by one
-    compoundStmtVisitor.TraverseDecl(astContext.getTranslationUnitDecl());
+    visitor.TraverseDecl(astContext.getTranslationUnitDecl());
 
-    for (size_t i = 0; i < compoundStmtVisitor.stmts.size(); i++)
+    // compound statements
+    for (size_t i = 0; i < visitor.stmts.size(); i++)
     {
-        clang::CompoundStmt &stmt = *compoundStmtVisitor.stmts[i];
+        clang::CompoundStmt &stmt = *visitor.stmts[i];
+
+#ifdef DEBUG
+        SourceLocation lb = ConvertSrcLoc(sm, stmt.getLBracLoc());
+        SourceLocation rb = ConvertSrcLoc(sm, stmt.getRBracLoc());
+        std::clog << "Found CompoundStmt " << FormatLocationRange(lb, rb) << " with "  << stmt.size() <<  " child statement(s)" << std::endl;
+#endif
+
+        for (clang::Stmt::child_iterator iter = stmt.child_begin(), last = stmt.child_end(); iter != last; ++iter) {
+            clang::Stmt *child = *iter;
+
+            SourceLocation cBeg = ConvertSrcLoc(sm, child->getBeginLoc());
+            SourceLocation cEnd = ConvertSrcLoc(sm, child->getEndLoc());
+
+            std::clog << "\t" << child->getStmtClassName() << " " << FormatLocationRange(cBeg, cEnd, true) << std::endl;
+        }
     }
-    
+
+    // global variables
+    for (size_t i = 0; i < visitor.vars.size(); i++)
+    {
+        clang::VarDecl &decl = *visitor.vars[i];
+#ifdef DEBUG
+        SourceLocation beg = ConvertSrcLoc(sm, decl.getBeginLoc());
+        SourceLocation end = ConvertSrcLoc(sm, decl.getEndLoc());
+
+        SourceLocation tBeg = ConvertSrcLoc(sm, decl.getTypeSpecStartLoc());
+        SourceLocation tEnd = ConvertSrcLoc(sm, decl.getTypeSpecEndLoc());
+
+        std::clog << "Found VarDecl \"" << decl.getNameAsString() << "\" " << FormatLocationRange(beg, end, true) << std::endl;
+
+        decl.dump();
+#endif
+    }
+
+    // structs
+    for (size_t i = 0; i < visitor.records.size(); i++)
+    {
+        clang::RecordDecl &record = *visitor.records[i];
+#ifdef DEBUG
+        SourceLocation beg = ConvertSrcLoc(sm, record.getBeginLoc());
+        SourceLocation end = ConvertSrcLoc(sm, record.getEndLoc());
+        std::clog << "Found RecordDecl \"" << record.getNameAsString() << "\" " << FormatLocationRange(beg, end) << std::endl;
+#endif
+    }
 }
 
 
