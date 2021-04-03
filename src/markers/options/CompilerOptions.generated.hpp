@@ -12,8 +12,8 @@ Automatically generated config/options file.
 */
 struct CompilerOptions
 {
-    std::string Flags; //!< Flags to pass on to compiler
-    const std::string DefaultFlags = ""; //!< default value for 'Flags' if no value is specified
+    std::vector<std::string> Flags; //!< Flags to pass on to compiler
+    const std::vector<std::string> DefaultFlags = {"-std=c99", "-Wall", "-Werror", "-pedantic"}; //!< default value for 'Flags' if no value is specified
 
     void Initialise(std::vector<ConfigOption> &options);
 };

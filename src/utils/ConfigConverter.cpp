@@ -3,19 +3,11 @@
 #include <iostream>
 
 template <>
-std::string ConfigConverter::ConvertOption<std::string>(ConfigOption *option){
-    if (option == NULL)
-    {
-        throw std::invalid_argument("Option not found.");
-    }
-    return option->Value;
+std::string ConfigConverter::ConvertTo<std::string>(std::string str){
+    return str;
 }
 
 template <>
-int ConfigConverter::ConvertOption<int>(ConfigOption *option){
-    if (option == NULL)
-    {
-        throw std::invalid_argument("Option not found.");
-    }
-    return std::stoi(option->Value);
+int ConfigConverter::ConvertTo<int>(std::string str){
+    return std::stoi(str);
 }

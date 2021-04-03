@@ -33,6 +33,7 @@ class Option:
         self.description = None
         self.defaultValue = None
         self.optional = False
+        self.isList = False
 
     def GetPropertyName(self):
         return CapitaliseFirstLetter(self.name)
@@ -40,17 +41,23 @@ class Option:
     def GetDefaultPropertyName(self):
         return "Default" + CapitaliseFirstLetter(self.name)
 
-    def GetPropertyType(self):
+    def GetBasePropertyType(self):
         typeString = self.datatype
         if self.datatype == "string":
             typeString = "std::string"
         return typeString
+
+    def GetPropertyType(self):
+        typeString = self.GetBasePropertyType()
+        if self.isList:
+            typeString = f"std::vector<{typeString}>"
+        return typeString
     
-    def GetDefaultLiteral(self):
-        if self.datatype == "string":
-            return "\"" + self.defaultValue + "\""
+    def GetDefaultValue(self):
+        if self.isList:
+            return "{" + ", ".join([FormatLiteralByType(val, self.datatype) for val in self.defaultValue]) + "}"
         else:
-            return self.defaultValue
+            return FormatLiteralByType(self.defaultValue, self.datatype)
 
     def GetDocString(self):
         return self.description
@@ -59,6 +66,12 @@ class Option:
         return ("[optional] " if self.optional else "") + self.datatype + " " + self.name + ("" if self.description == None else (" - \"" + self.description + "\""))
 
 # Helper Functions  -----------------------------
+def FormatLiteralByType(value, datatype):
+    if datatype == "string":
+        return "\"" + value + "\""
+    else:
+        return value
+
 def CapitaliseFirstLetter(string):
     if string==None or len(string) < 1:
         return string
@@ -96,8 +109,11 @@ def IsConvertableCxxType(datatype):
         return False
     return True
 
-def _isConvertableToType(value, datatype):
-    return True;
+def _isConvertableToType(value, datatype, isListOption=False):
+    if isListOption and not isinstance(value, list):
+        return False
+    else:
+        return True
 
 def _parseOption(optDict):
     """
@@ -112,6 +128,7 @@ def _parseOption(optDict):
     # initialise with basic properties
     opt = Option(optDict["name"], optDict["type"])
     opt.description = optDict.get("description")
+    opt.isList = optDict.get("isList") != None and optDict.get("isList") == True
     
     # determine if optional and check validity of default value
     opt.optional = optDict.get("defaultValue") != None 

@@ -38,7 +38,13 @@
                     "name": "Flags",
                     "type": "string",
                     "description": "Flags to pass on to compiler",
-                    "defaultValue": ""
+                    "defaultValue": [
+                        "-std=c99",
+                        "-Wall",
+                        "-Werror",
+                        "-pedantic"
+                    ],
+                    "isList": true
                 }
             ]
         },
