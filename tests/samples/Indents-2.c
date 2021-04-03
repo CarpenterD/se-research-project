@@ -30,6 +30,27 @@ int Switch(int n) {
     return a;
 }
 
+int FloatingBlock(){
+    int a = 0;
+    a += 1;
+
+    {
+        int b = a * 15;
+        a = b - 1;
+    }
+
+    return a;
+}
+
+void DoWhile(int n){
+    int count = 0;
+    do
+    {
+        count++;
+    } while (count < n);
+    return;
+}
+
 int main(int argc, char *argv[]) {
     return 1;
 }

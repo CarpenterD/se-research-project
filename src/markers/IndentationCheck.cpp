@@ -8,7 +8,7 @@
 
 // Clang deps
 #include "clang/AST/RecursiveASTVisitor.h"
-#include "clang/AST/ASTTypeTraits.h"
+#include "clang/AST/ParentMapContext.h"
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Frontend/FrontendActions.h"
 #include "clang/Rewrite/Core/Rewriter.h"
@@ -72,6 +72,10 @@ namespace
         SourceLocation loc(sm.getFilename(sl).str(), sm.getSpellingLineNumber(sl), sm.getSpellingColumnNumber(sl));
         return loc;
     };
+
+    std::string FormatSourceLocation(SourceLocation loc) {
+        return "(" + std::to_string(loc.line) + ":" + std::to_string(loc.column) + ")";
+    }
 
     std::string FormatLocationRange(SourceLocation beg, SourceLocation end, bool collapse=false) {
         if (collapse) {
@@ -140,24 +144,104 @@ void ICASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
     // find function definitions and process one by one
     visitor.TraverseDecl(astContext.getTranslationUnitDecl());
 
+    clang::ParentMapContext &PMapCxt = ctx.getParentMapContext();
+
     // compound statements
     for (size_t i = 0; i < visitor.stmts.size(); i++)
     {
         clang::CompoundStmt &stmt = *visitor.stmts[i];
-
 #ifdef DEBUG
         SourceLocation lb = ConvertSrcLoc(sm, stmt.getLBracLoc());
         SourceLocation rb = ConvertSrcLoc(sm, stmt.getRBracLoc());
         std::clog << "Found CompoundStmt " << FormatLocationRange(lb, rb) << " with "  << stmt.size() <<  " child statement(s)" << std::endl;
 #endif
+        SourceLocation indentStart = lb;
 
+        // get parent
+        clang::DynTypedNodeList parentList = PMapCxt.getParents(clang::DynTypedNode::create(stmt));
+        const clang::DynTypedNode *parent = parentList.begin();
+
+        if (parent != NULL)
+        {
+            clang::ASTNodeKind parentKind = parent->getNodeKind();
+            std::stringstream logstream;
+            logstream << "\t[PARENT] " << parentKind.asStringRef().str() << " ";
+
+            if (parentKind.isSame(clang::ASTNodeKind::getFromNodeKind<clang::FunctionDecl>()))
+            {
+                // parent is function
+                const clang::FunctionDecl *castParent = parent->get<clang::FunctionDecl>();
+                indentStart = ConvertSrcLoc(sm, castParent->getBeginLoc());
+                logstream << "'" << castParent->getDeclName().getAsString() << "' at ";
+                logstream << FormatLocationRange(ConvertSrcLoc(sm, castParent->getBeginLoc()), ConvertSrcLoc(sm, castParent->getEndLoc()));
+            } 
+            else if (parentKind.isSame(clang::ASTNodeKind::getFromNodeKind<clang::ForStmt>()))
+            {
+                // parent is 'for' loop
+                const clang::ForStmt *castParent = parent->get<clang::ForStmt>();
+                indentStart = ConvertSrcLoc(sm, castParent->getBeginLoc());
+                logstream << " at " << FormatLocationRange(ConvertSrcLoc(sm, castParent->getBeginLoc()), ConvertSrcLoc(sm, castParent->getEndLoc()));
+            }
+            else if (parentKind.isSame(clang::ASTNodeKind::getFromNodeKind<clang::WhileStmt>()))
+            {
+                // parent is 'while' loop
+                const clang::WhileStmt *castParent = parent->get<clang::WhileStmt>();
+                indentStart = ConvertSrcLoc(sm, castParent->getBeginLoc());
+                logstream << " at " << FormatLocationRange(ConvertSrcLoc(sm, castParent->getBeginLoc()), ConvertSrcLoc(sm, castParent->getEndLoc()));
+            }
+            else if (parentKind.isSame(clang::ASTNodeKind::getFromNodeKind<clang::DoStmt>()))
+            {
+                // parent is 'do while' loop
+                const clang::DoStmt *castParent = parent->get<clang::DoStmt>();
+                indentStart = ConvertSrcLoc(sm, castParent->getBeginLoc());
+                logstream << " at " << FormatLocationRange(ConvertSrcLoc(sm, castParent->getBeginLoc()), ConvertSrcLoc(sm, castParent->getEndLoc()));
+            }
+            else if (parentKind.isSame(clang::ASTNodeKind::getFromNodeKind<clang::IfStmt>()))
+            {
+                // parent is 'if' statement
+                const clang::IfStmt *castParent = parent->get<clang::IfStmt>();
+                indentStart = ConvertSrcLoc(sm, castParent->getBeginLoc());
+                logstream << " at " << FormatLocationRange(ConvertSrcLoc(sm, castParent->getBeginLoc()), ConvertSrcLoc(sm, castParent->getEndLoc()));
+            }
+            else if (parentKind.isSame(clang::ASTNodeKind::getFromNodeKind<clang::SwitchStmt>()))
+            {
+                // parent is 'switch' statement - SPECIAL CASE - contents of 'case' blocks are actually children of switch
+                const clang::SwitchStmt *castParent = parent->get<clang::SwitchStmt>();
+                indentStart = ConvertSrcLoc(sm, castParent->getBeginLoc());
+                logstream << " at " << FormatLocationRange(ConvertSrcLoc(sm, castParent->getBeginLoc()), ConvertSrcLoc(sm, castParent->getEndLoc()));
+            }
+            else if (parentKind.isSame(clang::ASTNodeKind::getFromNodeKind<clang::CompoundStmt>()))
+            {
+                // parent is compound statement -> child is almost certainly a 'floating' { ... } block
+                const clang::CompoundStmt *castParent = parent->get<clang::CompoundStmt>();
+                indentStart = ConvertSrcLoc(sm, castParent->getBeginLoc());
+                logstream << " at " << FormatLocationRange(ConvertSrcLoc(sm, castParent->getBeginLoc()), ConvertSrcLoc(sm, castParent->getEndLoc()));
+            }
+            else
+            {
+                throw std::invalid_argument("Unrecognised parent type found while processing CompoundStmt at " + FormatLocationRange(lb, rb) + ". ASTNodeType = " + parentKind.asStringRef().str());
+            }
+
+            // log
+            #ifdef DEBUG
+            std::clog << logstream.str() << std::endl;
+            #endif
+        }
+
+        #ifdef DEBUG
+        std::clog << "\t[INDENT START] " << FormatSourceLocation(indentStart) << std::endl;
+        #endif
+
+        // get children
         for (clang::Stmt::child_iterator iter = stmt.child_begin(), last = stmt.child_end(); iter != last; ++iter) {
             clang::Stmt *child = *iter;
 
             SourceLocation cBeg = ConvertSrcLoc(sm, child->getBeginLoc());
             SourceLocation cEnd = ConvertSrcLoc(sm, child->getEndLoc());
 
+            #ifdef DEBUG
             std::clog << "\t" << child->getStmtClassName() << " " << FormatLocationRange(cBeg, cEnd, true) << std::endl;
+            #endif
         }
     }
 
@@ -165,28 +249,26 @@ void ICASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
     for (size_t i = 0; i < visitor.vars.size(); i++)
     {
         clang::VarDecl &decl = *visitor.vars[i];
-#ifdef DEBUG
+
         SourceLocation beg = ConvertSrcLoc(sm, decl.getBeginLoc());
         SourceLocation end = ConvertSrcLoc(sm, decl.getEndLoc());
 
-        SourceLocation tBeg = ConvertSrcLoc(sm, decl.getTypeSpecStartLoc());
-        SourceLocation tEnd = ConvertSrcLoc(sm, decl.getTypeSpecEndLoc());
-
+        #ifdef DEBUG
         std::clog << "Found VarDecl \"" << decl.getNameAsString() << "\" " << FormatLocationRange(beg, end, true) << std::endl;
-
-        decl.dump();
-#endif
+        #endif
     }
 
     // structs
     for (size_t i = 0; i < visitor.records.size(); i++)
     {
         clang::RecordDecl &record = *visitor.records[i];
-#ifdef DEBUG
+
         SourceLocation beg = ConvertSrcLoc(sm, record.getBeginLoc());
         SourceLocation end = ConvertSrcLoc(sm, record.getEndLoc());
+
+        #ifdef DEBUG
         std::clog << "Found RecordDecl \"" << record.getNameAsString() << "\" " << FormatLocationRange(beg, end) << std::endl;
-#endif
+        #endif
     }
 }
 
