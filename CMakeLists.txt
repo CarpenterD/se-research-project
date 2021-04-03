@@ -45,6 +45,16 @@ include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
+# Generate Source Code ---------------------------------------------------
+set(CODE_GEN_DIR "../tools/generation")
+set(SRC_CODE_GEN "CodeGeneration.py")
+set(CODE_GEN_SRC "markerOptions.json")
+
+message(STATUS "Running source code generation")
+execute_process(COMMAND python3 ${SRC_CODE_GEN} ${CODE_GEN_SRC}
+                WORKING_DIRECTORY ${CODE_GEN_DIR}
+                OUTPUT_QUIET)
+
 # Add source files and executable ----------------------------------------
 file(GLOB SOURCES ${SRC_DIR}/*.cpp
                   ${SRC_DIR}/markers/*.cpp

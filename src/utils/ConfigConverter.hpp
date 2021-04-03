@@ -7,22 +7,34 @@
 
 namespace ConfigConverter
 {
-    // int ConvertOption(ConfigOption &option);
-    // int ConvertOption(ConfigOption &option, int defaultValue);
-    // std::vector<int> ConvertOption(ConfigOption &option);
+    // ConvertTo template by Mark Holmberg
+    // https://gist.github.com/mark-d-holmberg/862733
 
-
-    // Anon. namespace for template internals ---
-    namespace
+    // Convert from a string to another type
+    template <typename T>
+    T ConvertTo(std::string str)
     {
-
+        std::istringstream ss(str);
+        T val;
+        ss >> val;
+        return val;
     }
 
     // base template and variations -------------
     template <class T>
     T ConvertOption(ConfigOption *option)
     {
-        throw std::invalid_argument("Not Implemented. Unable to convert the selected type.");
+        try
+        {
+            if (option == NULL) {
+                throw std::invalid_argument("Option not found.");
+            }
+            return ConvertTo<T>(option->Value);
+        }
+        catch(const std::exception& e)
+        {
+            throw std::invalid_argument("Unable to convert the option -> " + std::string( e.what() ) );
+        }
     }
 
     template <class T>
@@ -49,7 +61,7 @@ namespace ConfigConverter
         {
             try
             {
-                collection.push_back(ConvertOption<T>(option->Values[1]));
+                collection.push_back(ConvertTo<T>(option->Values[i]));
             }
             catch (const std::exception& e)
             {
@@ -58,12 +70,25 @@ namespace ConfigConverter
         }
     }
 
+    template <class T>
+    void ConvertOption(ConfigOption *option, std::vector<T> &collection, const std::vector<T> &defaultCollection)
+    {
+        try
+        {
+            ConvertOption<T>(option, collection);
+        }
+        catch (const std::exception& e)
+        {
+            collection = defaultCollection;
+        }
+    }
+
     // template specialisations -----------------
     template <>
-    std::string ConvertOption<std::string>(ConfigOption *option);
+    std::string ConvertTo<std::string>(std::string str);
 
     template <>
-    int ConvertOption<int>(ConfigOption *option);
+    int ConvertTo<int>(std::string str);
 };
 
 #endif

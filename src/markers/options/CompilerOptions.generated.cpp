@@ -9,5 +9,5 @@ void CompilerOptions::Initialise(std::vector<ConfigOption> &options)
 #ifdef DEBUG
     std::clog << "Initialising CompilerOptions" << std::endl;
 #endif
-    Flags = ConfigConverter::ConvertOption<std::string>(ConfigReader::GetConfigOption(options, "Flags", "CompilerOptions"), DefaultFlags);
+    ConfigConverter::ConvertOption<std::string>(ConfigReader::GetConfigOption(options, "Flags", "CompilerOptions"), Flags, DefaultFlags);
 }
