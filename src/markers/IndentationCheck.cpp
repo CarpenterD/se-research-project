@@ -16,57 +16,13 @@
 #include "clang/Tooling/Tooling.h"
 #include "llvm/Support/CommandLine.h"
 
+
+
 // ------------------------------------------------------------------------
 // Anonymous namespace to hide internal methods and classes
 // ------------------------------------------------------------------------
 namespace
 {
-    class Visitor: public clang::RecursiveASTVisitor<Visitor>
-    {
-        public:
-            std::vector<clang::CompoundStmt *> stmts;
-            std::vector<clang::VarDecl *> vars;
-            std::vector<clang::RecordDecl *> records;
-            
-            explicit Visitor(clang::SourceManager& sm);
-            bool VisitCompoundStmt(clang::CompoundStmt* stmt);
-            bool VisitVarDecl(clang::VarDecl* decl);
-            bool VisitRecordDecl(clang::RecordDecl* decl);
-            
-        private:
-            clang::SourceManager& sm;
-            
-    };
-
-
-    class ICASTConsumer: public clang::ASTConsumer
-    {
-        public:
-            explicit ICASTConsumer(clang::CompilerInstance& ci, IndentationCheck &marker);
-            virtual void HandleTranslationUnit(clang::ASTContext& astContext);
-
-        private:
-            clang::ASTContext &ctx;
-            clang::SourceManager &sm;
-            Visitor visitor;
-
-            IndentationCheck &marker;
-            
-    };
-
-
-    // FrontendAction used for IndentationCheck 
-    class ICFrontendAction: public clang::ASTFrontendAction
-    {
-        public:
-            ICFrontendAction(IndentationCheck &marker);
-            virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file);
-
-        private:
-            IndentationCheck &marker;
-    };
-
-
     // helper functions
     SourceLocation ConvertSrcLoc(clang::SourceManager &sm, clang::SourceLocation sl) {
         SourceLocation loc(sm.getFilename(sl).str(), sm.getSpellingLineNumber(sl), sm.getSpellingColumnNumber(sl));
@@ -89,67 +45,73 @@ namespace
 }
 
 
+
 // ------------------------------------------------------------------------
-// Definitions for Visitor
+// Definitions for IndentationCheck
 // ------------------------------------------------------------------------
-// constructor
-Visitor::Visitor(clang::SourceManager& sm)
-    : sm(sm)
-{
-    // empty constructor
+
+
+IndentationCheck::IndentationCheck(TestConfig config) {
+#ifdef DEBUG
+    std::cout << "Creating IndentationCheck" << std::endl;
+#endif
+    StdOptions::Initialise(config.Options);
+    CompilerOptions::Initialise(config.Options);
 }
 
-// (override) recursive AST visiting function 
-bool Visitor::VisitCompoundStmt(clang::CompoundStmt* stmt)
-{
-    if (stmt != NULL && sm.isWrittenInMainFile(stmt->getSourceRange().getBegin()))
-    {
-        stmts.push_back(stmt);
+int IndentationCheck::GetIndentWidth() {
+    return indentWidth;
+}
+
+void IndentationCheck::SetIndentWidth(int width) {
+    if (width < 0) {
+        throw std::invalid_argument("Unable to set indent width of " + std::to_string(width) + "; width can not be negative.");
     }
-    return true;
+    indentWidth = width;
 }
 
-// (override) recursive AST visiting function 
-bool Visitor::VisitVarDecl(clang::VarDecl* decl)
-{
-    if (decl != NULL && sm.isWrittenInMainFile(decl->getSourceRange().getBegin()) && decl->hasGlobalStorage() && !decl->isStaticLocal())
-    {
-        vars.push_back(decl);
-    }
-    return true;
+// Driver marking function called by the test-runner. Triggers Frontend action and hence internal marking function.
+
+TestResult IndentationCheck::Mark(std::string file) {
+    // create TestResult object to parse to clang classes etc.
+    TestResult result;
+    result.testName = "IndentationCheck";
+    result.testDescription = "Checks code indentation";
+
+    // create and launch frontend action 
+    std::vector<std::string> args;
+    // args.push_back("-std=c99");
+    args.push_back("-I/home/dylan/llvm-project/build/lib/clang/13.0.0/include");
+    // args.push_back("-v");
+
+    // read source file
+    std::stringstream buf;
+    buf << CreateInputStream(file)->rdbuf();
+    std::string src = buf.str();
+
+    bool actionStatus = clang::tooling::runToolOnCodeWithArgs(std::make_unique<ICFrontendAction>(*this), llvm::Twine(src), args, file, "./stylemarker");
+
+    // Create results object
+    result.marksTotal = MarksAvailable;
+    result.marksAwarded = MarksAvailable;
+    return result;
 }
 
-// (override) recursive AST visiting function 
-bool Visitor::VisitRecordDecl(clang::RecordDecl *decl)
-{
-    if (decl != NULL && sm.isWrittenInMainFile(decl->getSourceRange().getBegin()))
-    {
-        records.push_back(decl);
-    }
-    return true;
-}
+// Hidden internal marking function. Stored result internally, for eventual retrieval and return my main driver function.
 
+void IndentationCheck::CheckIndentation(clang::CompilerInstance& ci, std::vector<clang::CompoundStmt *> &stmts, std::vector<clang::VarDecl *> &vars, std::vector<clang::RecordDecl *> &records) {
+    // capture ASTContext and SourceManager for ease of use
+    clang::ASTContext &ctx = ci.getASTContext();
+    clang::SourceManager &sm = ci.getSourceManager();
 
+    int iWidth = GetIndentWidth(); // in place of a more power function e.g. GetModalIndentFromSource(clangNodes)
 
-// ------------------------------------------------------------------------
-// Definitions for MyASTConsumer
-// ------------------------------------------------------------------------
-ICASTConsumer::ICASTConsumer(clang::CompilerInstance& ci, IndentationCheck &marker)
-    : ctx(ci.getASTContext()), sm(ci.getSourceManager()), visitor(sm), marker(marker)
-{
-    // empty constructor
-}
-
-void ICASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
-    // find function definitions and process one by one
-    visitor.TraverseDecl(astContext.getTranslationUnitDecl());
-
-    clang::ParentMapContext &PMapCxt = ctx.getParentMapContext();
+        clang::ParentMapContext &PMapCxt = ctx.getParentMapContext();
 
     // compound statements
-    for (size_t i = 0; i < visitor.stmts.size(); i++)
+    for (size_t i = 0; i < stmts.size(); i++)
     {
-        clang::CompoundStmt &stmt = *visitor.stmts[i];
+        clang::CompoundStmt &stmt = *stmts[i];
 #ifdef DEBUG
         SourceLocation lb = ConvertSrcLoc(sm, stmt.getLBracLoc());
         SourceLocation rb = ConvertSrcLoc(sm, stmt.getRBracLoc());
@@ -246,9 +208,9 @@ void ICASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
     }
 
     // global variables
-    for (size_t i = 0; i < visitor.vars.size(); i++)
+    for (size_t i = 0; i < vars.size(); i++)
     {
-        clang::VarDecl &decl = *visitor.vars[i];
+        clang::VarDecl &decl = *vars[i];
 
         SourceLocation beg = ConvertSrcLoc(sm, decl.getBeginLoc());
         SourceLocation end = ConvertSrcLoc(sm, decl.getEndLoc());
@@ -259,9 +221,9 @@ void ICASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
     }
 
     // structs
-    for (size_t i = 0; i < visitor.records.size(); i++)
+    for (size_t i = 0; i < records.size(); i++)
     {
-        clang::RecordDecl &record = *visitor.records[i];
+        clang::RecordDecl &record = *records[i];
 
         SourceLocation beg = ConvertSrcLoc(sm, record.getBeginLoc());
         SourceLocation end = ConvertSrcLoc(sm, record.getEndLoc());
@@ -270,58 +232,4 @@ void ICASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
         std::clog << "Found RecordDecl \"" << record.getNameAsString() << "\" " << FormatLocationRange(beg, end) << std::endl;
         #endif
     }
-}
-
-
-
-// ------------------------------------------------------------------------
-// Definitions for ICFrontendAction
-// ------------------------------------------------------------------------
-ICFrontendAction::ICFrontendAction(IndentationCheck &marker)
-    : marker(marker)
-{
-    // nothing to see here
-};
-
-std::unique_ptr<clang::ASTConsumer> ICFrontendAction::CreateASTConsumer(clang::CompilerInstance& CI, clang::StringRef file) {
-    // pass CompilerInstance to ASTConsumer
-    return std::make_unique<ICASTConsumer>(CI, marker); 
-}
-
-
-
-// ------------------------------------------------------------------------
-// Definitions for IndentationCheck
-// ------------------------------------------------------------------------
-IndentationCheck::IndentationCheck(TestConfig config) {
-#ifdef DEBUG
-    std::cout << "Creating IndentationCheck" << std::endl;
-#endif
-    StdOptions::Initialise(config.Options);
-    CompilerOptions::Initialise(config.Options);
-}
-
-TestResult IndentationCheck::Mark(std::string file) {
-    // create TestResult object to parse to clang classes etc.
-    TestResult result;
-    result.testName = "IndentationCheck";
-    result.testDescription = "Checks code indentation";
-
-    // create and launch frontend action 
-    std::vector<std::string> args;
-    // args.push_back("-std=c99");
-    args.push_back("-I/home/dylan/llvm-project/build/lib/clang/13.0.0/include");
-    // args.push_back("-v");
-
-    // read source file
-    std::stringstream buf;
-    buf << CreateInputStream(file)->rdbuf();
-    std::string src = buf.str();
-
-    bool actionStatus = clang::tooling::runToolOnCodeWithArgs(std::make_unique<ICFrontendAction>(*this), llvm::Twine(src), args, file, "./stylemarker");
-
-    // Create results object
-    result.marksTotal = MarksAvailable;
-    result.marksAwarded = MarksAvailable;
-    return result;
 }

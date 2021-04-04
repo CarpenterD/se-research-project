@@ -14,6 +14,12 @@ int DoubleTabbed() {
         return c * a - b;
 }
 
+int HardTab() {
+    int x = 20;
+	int y = 4*x;
+    return x + y;
+}
+
 int MissingSpace() {
     int a, b, c;
    a = 1;
