@@ -41,6 +41,25 @@ int BadNesting() {
     return a;
 }
 
+int BraceInMiddleOfNowhere()
+
+{
+    return 50;
+}
+
+int TwoStmtsOnOneLine()
+{
+    int a = 7; return 50;
+}
+
+void StmtInLineWithBrackets()
+{ int a = 100;
+return;}
+
+void InlineAcceptable() { int a = 100; return; }
+
+void InlineUnAcceptable() { int a = 'a'; int b = 'b'; int c = 'c'; return; }
+
 int main(int argc, char *argv[]) {
     return 1;
 }

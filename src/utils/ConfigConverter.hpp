@@ -89,6 +89,9 @@ namespace ConfigConverter
 
     template <>
     int ConvertTo<int>(std::string str);
+
+    template <>
+    bool ConvertTo<bool>(std::string str);
 };
 
 #endif

@@ -51,6 +51,12 @@ void DoWhile(int n){
     return;
 }
 
+int OneLiner(int a) {
+    if ( a < 0 )
+        return 0-a;
+    return a;
+}
+
 int main(int argc, char *argv[]) {
     return 1;
 }

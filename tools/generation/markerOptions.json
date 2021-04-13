@@ -65,6 +65,24 @@
                     "defaultValue": "60"
                 }
             ]
+        },
+        {
+            "name": "IndentCheckOptions",
+            "description": "Options used by the 'IndentationCheck' class.",
+            "options": [
+                {
+                    "name": "MaxInlineStmts",
+                    "type": "int",
+                    "description": "The number of child stmts that can be inline with a parent",
+                    "defaultValue": "2"
+                },
+                {
+                    "name": "AllowStmtsOnSameLine",
+                    "type": "bool",
+                    "description": "Determines if multiple sibling statements should be allowed on the same line.",
+                    "defaultValue": "false"
+                }
+            ]
         }
     ]
 }
