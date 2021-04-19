@@ -237,15 +237,12 @@ void IndentationCheck::CheckIndentationVarDecl( clang::SourceManager &sm, clang:
     SourceLocation beg = ConvertSrcLoc(sm, decl.getBeginLoc());
     SourceLocation end = ConvertSrcLoc(sm, decl.getEndLoc());
 
-    beg.snippet = decl.getNameAsString();
-    beg.hasSnippet = true;
-
     #ifdef DEBUG
     std::clog << "Found VarDecl \"" << decl.getNameAsString() << "\" " << FormatLocationRange(beg, end, true) << std::endl;
     #endif
 
     if ( beg.column > 1 ) {
-        result.feedback.push_back(std::pair<SourceLocation,std::string>(beg, "Global variables should not be indented."));
+        result.feedback.push_back(FeedbackItem(SourceLocation(beg.file, beg.line, 1), beg, "Global variables should not be indented."));
     }
 }
 
@@ -253,15 +250,12 @@ void IndentationCheck::CheckIndentationRecordDecl( clang::SourceManager &sm, cla
     SourceLocation beg = ConvertSrcLoc(sm, decl.getBeginLoc());
     SourceLocation end = ConvertSrcLoc(sm, decl.getEndLoc());
 
-    beg.snippet = decl.getNameAsString();
-    beg.hasSnippet = true;
-
     #ifdef DEBUG
     std::clog << "Found RecordDecl \"" << decl.getNameAsString() << "\" " << FormatLocationRange(beg, end) << std::endl;
     #endif
 
     if ( beg.column > 1 ) {
-        result.feedback.push_back(std::pair<SourceLocation,std::string>(beg, "Struct declarations should not be indented."));
+        result.feedback.push_back(FeedbackItem(SourceLocation(beg.file, beg.line, 1), beg, "Struct declarations should not be indented."));
     }
 
     for (clang::RecordDecl::field_iterator iter = decl.field_begin(), last = decl.field_end(); iter != last; ++iter) {
@@ -274,7 +268,7 @@ void IndentationCheck::CheckIndentationRecordDecl( clang::SourceManager &sm, cla
         #endif
 
         if ( !IsValidIndent(fieldStart.column - beg.column) ) {
-            result.feedback.push_back(std::pair<SourceLocation, std::string>(fieldStart, "Declarations for struct members should be indented from the left side of the page by a multiple of 4 spaces"));
+            result.feedback.push_back(FeedbackItem(fieldStart, "Struct declarations should not be indented."));
         }
     }
 }
@@ -286,7 +280,7 @@ void IndentationCheck::CheckBlockIndentation(SourceLocation &kw, SourceLocation 
         {
             int width = clocs[i].column - kw.column;
             if (!IsValidIndent(width)) {
-                result.feedback.push_back(std::pair<SourceLocation, std::string>(clocs[i], "Child statements should indented from their parent by a multiple of 4 spaces"));
+                result.feedback.push_back(FeedbackItem(clocs[i], "Child statements should indented from their parent by a multiple of 4 spaces"));
             } 
         }
     }
@@ -296,27 +290,27 @@ void IndentationCheck::CheckBlockIndentation(SourceLocation &kw, SourceLocation 
     if ( lb.line == rb.line ) {
         // ensure there are only a max of 2 statements on line
         if (clocs.size() > IndentCheckOptions::MaxInlineStmts) {
-            result.feedback.push_back(std::pair<SourceLocation, std::string>(clocs[0], "Having multiple statements on a single line saves vertical space but makes it hard to distingush between distinct statements. Moving the statements on to separate lines would significantly increase readability."));
+            result.feedback.push_back(FeedbackItem(clocs[0], "Having multiple statements on a single line saves vertical space but makes it hard to distingush between distinct statements. Moving the statements on to separate lines would significantly increase readability."));
         }
     } else {
         if ( lb.line > kw.line + 1 ) {
-            result.feedback.push_back(std::pair<SourceLocation, std::string>(lb, "The opening curly brace should be in line with the parent statement or on the very next line."));
+            result.feedback.push_back(FeedbackItem(lb, SourceLocation(lb.file, lb.line+1, lb.column), "The opening curly brace should be in line with the parent statement or on the very next line."));
         }
         if ( lb.line == kw.line+1  && !(lb.column == kw.column || IsValidIndent(lb.column - kw.column)) ) {
-            result.feedback.push_back(std::pair<SourceLocation, std::string>(lb, "The opening curly brace should be either directly below its parent statement, or below and indented by one level."));
+            result.feedback.push_back(FeedbackItem(lb, SourceLocation(lb.file, lb.line+1, lb.column), "The opening curly brace should be either directly below its parent statement, or below and indented by one level."));
         }
         if ( rb.line != kw.line  && rb.column != kw.column ) {
-            result.feedback.push_back(std::pair<SourceLocation, std::string>(rb, "The closing curly brace should line up vertically with the start of the parent keyword e.g. the 'f' in \"for\" or the 'i' in \"if\"."));
+            result.feedback.push_back(FeedbackItem(rb, SourceLocation(rb.file, rb.line+1, rb.column), "The closing curly brace should line up vertically with the start of the parent keyword e.g. the 'f' in \"for\" or the 'i' in \"if\"."));
         }
     }
 
     // check that the first and last statements are not on the same line as the brackets
     if ( clocs.size() > 0 && clocs.size() > IndentCheckOptions::MaxInlineStmts && lb.line != rb.line) {
         if (lb.line == clocs[0].line) {
-            result.feedback.push_back(std::pair<SourceLocation, std::string>(clocs[0], "To increase clarity and  indentation consistency, statements should not be put on the same line as the opening curly brace."));
+            result.feedback.push_back(FeedbackItem(clocs[0], "To increase clarity and  indentation consistency, statements should not be put on the same line as the opening curly brace."));
         }
         if (rb.line == clocs.back().line) {
-            result.feedback.push_back(std::pair<SourceLocation, std::string>(clocs.back(), "To increase clarity and  indentation consistency, statements should not be put on the same line as the closing curly brace."));
+            result.feedback.push_back(FeedbackItem(clocs.back(), "To increase clarity and  indentation consistency, statements should not be put on the same line as the closing curly brace."));
         }
     }
     
@@ -325,7 +319,7 @@ void IndentationCheck::CheckBlockIndentation(SourceLocation &kw, SourceLocation 
         for (size_t i = 0; i < clocs.size()-1; i++)
         {
             if ( clocs[i].line == clocs[i+1].line){
-                result.feedback.push_back(std::pair<SourceLocation, std::string>(clocs[i+1], "This statement is on the same line as the one before it. To increase clarity, make sure that every statement is on its own line."));
+                result.feedback.push_back(FeedbackItem(clocs[i+1], "This statement is on the same line as the one before it. To increase clarity, make sure that every statement is on its own line."));
             }
         }
     }

@@ -31,7 +31,7 @@ TestResult VowelCounter::Mark(std::string file){
             vowelsThisline++;
         } else if (c=='\n') {
             if (vowelsThisline == 0){
-                result.feedback.push_back(std::pair<SourceLocation, std::string>(SourceLocation(file, lines, 0), "No vowels found on this line."));
+                result.feedback.push_back(FeedbackItem(SourceLocation(file, lines, 0), "No vowels found on this line."));
             }
             lines++;
             vowelsThisline = 0;

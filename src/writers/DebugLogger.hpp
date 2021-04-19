@@ -19,6 +19,7 @@ class DebugLogger : public ResultWriter
 
         void LogSingleResult(TestResult);
         std::string FormatSrcLoc(SourceLocation loc);
+        std::string FormatSrcRange(const SourceLocation &beg, const SourceLocation &end);
 };
 
 #endif

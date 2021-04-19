@@ -148,14 +148,14 @@ void MyASTConsumer::ProcessFunction(clang::FunctionDecl &func) {
         msg << "The function '" << name << "' is too long and impedes readability. ";
         msg << "Break the function into a series of smaller and more independent functions. ";
         msg << "Note that ideally a single function should perform a single, logically-interconnected task.";
-        result.feedback.push_back(std::pair<SourceLocation, std::string>(loc, msg.str()));
+        result.feedback.push_back(FeedbackItem(SourceLocation(loc.file, loc.line, loc.column), msg.str(), FeedbackSeverity::MODERATE));
     } else if (length > marker.SuggestionThreshold) {
         // make suggestion
         std::stringstream msg;
         msg << "The function '" << name << "' is quite lengthy. ";
         msg << "To increase readability, consider moving independent sections of code from '" << name << "' ";
         msg << "into a new function and calling it in place of the moved sections.";
-        result.feedback.push_back(std::pair<SourceLocation, std::string>(loc, msg.str()));
+        result.feedback.push_back(FeedbackItem(SourceLocation(loc.file, loc.line, loc.column), msg.str()));
     }
     
     return;

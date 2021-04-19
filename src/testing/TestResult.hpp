@@ -2,7 +2,7 @@
 #define TEST_RESULT
 
 #include <vector>
-#include "SourceLocation.hpp"
+#include "testing/FeedbackItem.hpp"
 
 struct TestResult
 {
@@ -13,7 +13,7 @@ struct TestResult
 
     int marksTotal;
     int marksAwarded;
-    std::vector<std::pair<SourceLocation, std::string>> feedback;
+    std::vector<FeedbackItem> feedback;
 };
 
 #endif
