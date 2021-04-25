@@ -201,9 +201,11 @@ SourceLocation IndentationCheck::GetParentStartLocation( clang::SourceManager &s
 }
 
 void IndentationCheck::CheckIndentationCompoundStmt( clang::SourceManager &sm, clang::CompoundStmt &stmt, const clang::DynTypedNode *parent ) {
-    #ifdef DEBUG
+    
     SourceLocation lb = ConvertSrcLoc(sm, stmt.getLBracLoc());
     SourceLocation rb = ConvertSrcLoc(sm, stmt.getRBracLoc());
+
+    #ifdef DEBUG
     std::clog << "Found CompoundStmt " << FormatLocationRange(lb, rb) << " with "  << stmt.size() <<  " child statement(s)" << std::endl;
     #endif
     SourceLocation indentStart = lb;
