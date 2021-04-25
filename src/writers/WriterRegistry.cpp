@@ -4,6 +4,7 @@
 
 #include "ResultWriter.hpp"
 #include "DebugLogger.hpp"
+#include "JsonWriter.hpp"
 
 
 ResultWriter* WriterRegistry::CreateWriter(std::ostream* stream, OutputConfig config){
@@ -12,6 +13,8 @@ ResultWriter* WriterRegistry::CreateWriter(std::ostream* stream, OutputConfig co
     std::string writerName = config.WriterName;
     if (writerName=="DebugLogger"){
         return new DebugLogger(stream, config);
+    } else if (writerName=="JsonWriter"){
+        return new JsonWriter(stream, config);
     } else {
         throw std::invalid_argument("Unable to construct writer '" + writerName + "'. Name not recognised.");
     }
