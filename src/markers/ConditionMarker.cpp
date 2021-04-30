@@ -85,81 +85,73 @@ TestResult ConditionMarker::Mark(std::string file) {
 
 
 
-
-
-
-
-
-
-
-
-
-class BoolEqualityCallback : public MatchFinder::MatchCallback
+ConditionMarker::BoolEqualityCallback::BoolEqualityCallback(clang::ASTContext &context, TestResult &result)
+	: context(context), result(result)
 {
-	clang::Rewriter rewriter_;
 
-public :
-	virtual void run(const MatchFinder::MatchResult &result)
-	{
-		clang::SourceManager* sourceManager = result.SourceManager;
-		const clang::LangOptions& langOptions = result.Context->getLangOpts();
+}
 
-		//get AST nodes
-		const clang::BinaryOperator* binaryOperator = result.Nodes.getNodeAs<clang::BinaryOperator>("boolEq");
-		const clang::CXXBoolLiteralExpr* literal = result.Nodes.getNodeAs<clang::CXXBoolLiteralExpr>("literal");
-
-		//get string representation and location
-		clang::CharSourceRange binOpRange = clang::CharSourceRange::getTokenRange(binaryOperator->getSourceRange());
-		std::string binOpString = clang::Lexer::getSourceText(binOpRange, *sourceManager, langOptions).str();
-		std::cout << "At " << getLocationString(binOpRange.getBegin(), sourceManager) << ": Simplify Boolean comparison" << std::endl;
-
-		//evaluate if of poor quality
-		std::string operand = binaryOperator->getOpcodeStr().str();
-		bool literalValue = literal->getValue();
-
-		std::cout << "\tThe Boolean comparison '" << binOpString << "' could be simplified to remove the hard-coded '" << boolToStr(literalValue) << "'" << std::endl;
-		std::cout << "\tConsider the value of the other side of the '" << operand << "' when the computer evaluates the condition. ";
-		if ((operand=="==" && literalValue) || (operand=="!=" && !literalValue) ){
-			std::cout << "How does it compare to the result you want?" << std::endl; //the values are the same
-		}else{
-			std::cout << "How would you modify it into the result you are expecting?" << std::endl; //the value needs to be negated
-		}
-
-		// binaryOperator->dumpColor();
-		std::cout << std::endl;
-	}
-};
-
-class BoolLogicCallback : public MatchFinder::MatchCallback
+void ConditionMarker::BoolEqualityCallback::run(const MatchFinder::MatchResult &result)
 {
-	clang::Rewriter rewriter_;
+	clang::SourceManager* sourceManager = result.SourceManager;
+	const clang::LangOptions& langOptions = result.Context->getLangOpts();
 
-public :
-	virtual void run(const MatchFinder::MatchResult &result)
-	{
-		clang::SourceManager* sourceManager = result.SourceManager;
-		const clang::LangOptions& langOptions = result.Context->getLangOpts();
+	//get AST nodes
+	const clang::BinaryOperator* binaryOperator = result.Nodes.getNodeAs<clang::BinaryOperator>("boolEq");
+	const clang::CXXBoolLiteralExpr* literal = result.Nodes.getNodeAs<clang::CXXBoolLiteralExpr>("literal");
 
-		//get AST nodes
-		const clang::BinaryOperator* binaryOperator = result.Nodes.getNodeAs<clang::BinaryOperator>("boolLogic");
-		const clang::CXXBoolLiteralExpr* literal = result.Nodes.getNodeAs<clang::CXXBoolLiteralExpr>("literal");
+	//get string representation and location
+	clang::CharSourceRange binOpRange = clang::CharSourceRange::getTokenRange(binaryOperator->getSourceRange());
+	std::string binOpString = clang::Lexer::getSourceText(binOpRange, *sourceManager, langOptions).str();
+	std::cout << "At " << getLocationString(binOpRange.getBegin(), sourceManager) << ": Simplify Boolean comparison" << std::endl;
 
-		//get string representation and location
-		clang::CharSourceRange binOpRange = clang::CharSourceRange::getTokenRange(binaryOperator->getSourceRange());
-		std::string binOpString = clang::Lexer::getSourceText(binOpRange, *sourceManager, langOptions).str();
+	//evaluate if of poor quality
+	std::string operand = binaryOperator->getOpcodeStr().str();
+	bool literalValue = literal->getValue();
 
-		//report problem
-		std::string operand = binaryOperator->getOpcodeStr().str();
-		bool literalValue = literal->getValue();
-
-		std::cout << "At " << getLocationString(binOpRange.getBegin(), sourceManager) << ": Simplify Boolean logic" << std::endl;
-		std::cout << "\tThe Boolean logic expression '" << binOpString << "' could be simplified." << std::endl;
-		std::cout << "\tConsider the effect a constant value of '" << boolToStr(literalValue) << "' will have on a logical '" << (operand == "&&"? "AND":"OR") << "'. A truth table may be useful for this." << std::endl;
-
-		// binaryOperator->dumpColor();
-		std::cout << std::endl;
+	std::cout << "\tThe Boolean comparison '" << binOpString << "' could be simplified to remove the hard-coded '" << boolToStr(literalValue) << "'" << std::endl;
+	std::cout << "\tConsider the value of the other side of the '" << operand << "' when the computer evaluates the condition. ";
+	if ((operand=="==" && literalValue) || (operand=="!=" && !literalValue) ){
+		std::cout << "How does it compare to the result you want?" << std::endl; //the values are the same
+	}else{
+		std::cout << "How would you modify it into the result you are expecting?" << std::endl; //the value needs to be negated
 	}
-};
+
+	// binaryOperator->dumpColor();
+	std::cout << std::endl;
+}
+
+
+
+ConditionMarker::BoolLogicCallback::BoolLogicCallback(clang::ASTContext &context, TestResult &result)
+	: context(context), result(result)
+{
+
+}
+
+void ConditionMarker::BoolLogicCallback::run(const MatchFinder::MatchResult &result)
+{
+	clang::SourceManager* sourceManager = result.SourceManager;
+	const clang::LangOptions& langOptions = result.Context->getLangOpts();
+
+	//get AST nodes
+	const clang::BinaryOperator* binaryOperator = result.Nodes.getNodeAs<clang::BinaryOperator>("boolLogic");
+	const clang::CXXBoolLiteralExpr* literal = result.Nodes.getNodeAs<clang::CXXBoolLiteralExpr>("literal");
+
+	//get string representation and location
+	clang::CharSourceRange binOpRange = clang::CharSourceRange::getTokenRange(binaryOperator->getSourceRange());
+	std::string binOpString = clang::Lexer::getSourceText(binOpRange, *sourceManager, langOptions).str();
+
+	//report problem
+	std::string operand = binaryOperator->getOpcodeStr().str();
+	bool literalValue = literal->getValue();
+
+	std::cout << "At " << getLocationString(binOpRange.getBegin(), sourceManager) << ": Simplify Boolean logic" << std::endl;
+	std::cout << "\tThe Boolean logic expression '" << binOpString << "' could be simplified." << std::endl;
+	std::cout << "\tConsider the effect a constant value of '" << boolToStr(literalValue) << "' will have on a logical '" << (operand == "&&"? "AND":"OR") << "'. A truth table may be useful for this." << std::endl;
+
+	std::cout << std::endl;
+}
 
 // int main(int argc, const char **argv)
 // {
