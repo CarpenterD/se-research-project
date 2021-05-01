@@ -7,33 +7,40 @@
 #include "utils/FileIO.hpp"
 
 // Clang deps
-#include "clang/ASTMatchers/ASTMatchFinder.h"
+#include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Frontend/FrontendActions.h"
-#include "clang/Lex/Lexer.h"
-#include "clang/Rewrite/Core/Rewriter.h"
-#include "clang/Tooling/CommonOptionsParser.h"
-#include "clang/Tooling/Refactoring.h"
-#include "clang/Tooling/RefactoringCallbacks.h"
 #include "clang/Tooling/Tooling.h"
-#include "llvm/Support/CommandLine.h"
 
-using namespace clang::ast_matchers;
 
 // ------------------------------------------------------------------------
-// Anonymous namespace to hide internal methods and classes
+// Definitions for ASTVisitor
 // ------------------------------------------------------------------------
-namespace
+
+ConditionMarker::ASTVisitor::ASTVisitor(clang::CompilerInstance& ci, ConditionMarker &marker)
+    : ci(ci), ctx(ci.getASTContext()), sm(ci.getSourceManager()), marker(marker)
 {
-	std::string getLocationString(clang::SourceLocation loc, clang::SourceManager* sourceManager){
-		std::ostringstream stream;
-		stream << sourceManager->getFilename(loc).str() << ":" << sourceManager->getSpellingLineNumber(loc) << ":" << sourceManager->getSpellingColumnNumber(loc);
-		return stream.str();
-	}
+    // empty constructor
+}
 
-	std::string boolToStr(bool val){
-		return val? "true":"false";
-	}
+// (override) recursive AST visiting function 
+bool ConditionMarker::ASTVisitor::VisitIfStmt(clang::IfStmt* stmt)
+{
+    if (stmt != NULL && sm.isWrittenInMainFile(stmt->getSourceRange().getBegin()))
+    {
+        marker.HandleIfStmt(ci, *stmt);
+    }
+    return true;
+}
+
+// (override) recursive AST visiting function 
+bool ConditionMarker::ASTVisitor::VisitBinaryOperator(clang::BinaryOperator* op)
+{
+    if (op != NULL && sm.isWrittenInMainFile(op->getSourceRange().getBegin()))
+    {
+        marker.HandleBinaryOperator(ci, *op);
+    }
+    return true;
 }
 
 
@@ -41,46 +48,15 @@ namespace
 // ------------------------------------------------------------------------
 // Definitions for internal AST Consumer
 // ------------------------------------------------------------------------
+
 ConditionMarker::ASTConsumer::ASTConsumer(clang::CompilerInstance& instance, ConditionMarker &marker)
-    : ci(instance), ctx(ci.getASTContext()), sm(ci.getSourceManager()), marker(marker)
+    : ci(instance), visitor(instance, marker), marker(marker)
 {
-    // Initialise Matchers
-	// Matches Boolean equality comparisons with a Boolean literal 
-	StatementMatcher boolEqualityMatcher = binaryOperator(
-		anyOf(
-			hasOperatorName("=="),
-			hasOperatorName("!=")
-		), 
-		hasEitherOperand(
-			has(
-				ignoringParenImpCasts(
-					cxxBoolLiteral().bind("literal")
-				)
-			)
-		)
-	).bind("boolEq");
-
-	// Matches Boolean logic with a Boolean literal
-	StatementMatcher boolLogicMatcher = binaryOperator(
-		anyOf(
-			hasOperatorName("&&"),
-			hasOperatorName("||")
-		), 
-		hasEitherOperand(
-			cxxBoolLiteral().bind("literal")
-		)
-	).bind("boolLogic");
-
-	ConditionMarker::BoolEqualityCallback equalityCallback(ctx, marker.result);
-	ConditionMarker::BoolLogicCallback logicCallback(ctx, marker.result);
-
-	finder.addMatcher(boolEqualityMatcher, &equalityCallback);
-	finder.addMatcher(boolLogicMatcher, &logicCallback);
+    
 }
 
 void ConditionMarker::ASTConsumer::HandleTranslationUnit(clang::ASTContext& astContext) {
-    // find function definitions and process one by one
-    finder.matchAST(astContext);
+    visitor.TraverseDecl(astContext.getTranslationUnitDecl());
 }
 
 
@@ -88,6 +64,7 @@ void ConditionMarker::ASTConsumer::HandleTranslationUnit(clang::ASTContext& astC
 // ------------------------------------------------------------------------
 // Definitions for internal FrontendAction
 // ------------------------------------------------------------------------
+
 ConditionMarker::FrontendAction::FrontendAction(ConditionMarker &marker)
     : marker(marker)
 {
