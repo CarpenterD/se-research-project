@@ -286,7 +286,7 @@ void IndentationCheck::CheckBlockIndentation(SourceLocation &kw, SourceLocation 
             } 
         }
     }
-    
+
 
     // check lb and rb
     if ( lb.line == rb.line ) {
@@ -317,7 +317,7 @@ void IndentationCheck::CheckBlockIndentation(SourceLocation &kw, SourceLocation 
     }
     
     //check for sibling statements on the same line (where not all inline)
-    if ( !IndentCheckOptions::AllowStmtsOnSameLine && lb.line != rb.line ){
+    if ( !IndentCheckOptions::AllowStmtsOnSameLine && clocs.size() > 1 && lb.line != rb.line ){
         for (size_t i = 0; i < clocs.size()-1; i++)
         {
             if ( clocs[i].line == clocs[i+1].line){
