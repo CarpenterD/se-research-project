@@ -23,7 +23,7 @@ Marker* MarkerRegistry::CreateMarker(TestConfig config)
     } else if (markerName=="IndentationCheck"){
         return new IndentationCheck(config);
     } else if (markerName=="ConditionMarker"){
-        return new VowelCounter(config);
+        return new ConditionMarker(config);
     } else if (markerName=="VowelCounter"){
         return new VowelCounter(config);
     } else {

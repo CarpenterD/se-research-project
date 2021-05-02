@@ -23,6 +23,10 @@ class ConditionMarker: public Marker, CompilerOptions
         void HandleIfStmt(clang::CompilerInstance &ci, clang::IfStmt &stmt);
         void HandleBinaryOperator(clang::CompilerInstance &ci, clang::BinaryOperator &op);
 
+        static bool ParentIsIfStmt(clang::ASTContext &ctx, clang::IfStmt &stmt);
+        static clang::ReturnStmt *ResolveStmtToSingleReturn(clang::ASTContext &ctx, clang::Stmt &stmt);
+        static clang::IntegerLiteral *GetLiteralReturnValue(clang::ASTContext &ctx, clang::ReturnStmt &retStmt);
+
         // INNER CLASSES
 
         class ASTVisitor: public clang::RecursiveASTVisitor<ASTVisitor>

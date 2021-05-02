@@ -15,9 +15,18 @@ int main(int argc, char const *argv[])
     }
 
     double d = 1.0;
-    float f = d;
-    if ( d == 10.0 || "BIG" == "TEST"){
+    if ( d == 10.0){
 
+    }
+
+    float f = d;
+    if ( f == 10.0){
+
+    }
+
+    static char *msg = "HELLO";
+    if ( msg == "HELLO" ) {
+        // may want to detect this (in addition to compiler warning)
     }
 
     return 0;
