@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rootconfig>
   <tests>
-    <test name="ConditionMarker">
+    <!-- <test name="ConditionMarker">
       <option name="MarksAvailable"><value>2</value></option>
     </test>
     <test name="IndentationCheck">
@@ -11,6 +11,9 @@
       <option name="MarksAvailable"><value>0</value></option>
       <option name="SuggestionThreshold"><value>10</value></option>
       <option name="AcceptableThreshold"><value>20</value></option>
+    </test> -->
+    <test name="IdentifierMarker">
+      <option name="MarksAvailable"><value>1</value></option>
     </test>
   </tests>
   <output name="DebugLogger">

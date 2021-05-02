@@ -9,6 +9,7 @@
 #include "FunctionLengthMarker.hpp"
 #include "IndentationCheck.hpp"
 #include "ConditionMarker.hpp"
+#include "IdentifierMarker.hpp"
 
 Marker* MarkerRegistry::CreateMarker(TestConfig config)
 {    
@@ -26,6 +27,8 @@ Marker* MarkerRegistry::CreateMarker(TestConfig config)
         return new ConditionMarker(config);
     } else if (markerName=="VowelCounter"){
         return new VowelCounter(config);
+    } else if (markerName=="IdentifierMarker"){
+        return new IdentifierMarker(config);
     } else {
         throw std::invalid_argument("Unable to construct marker '" + markerName + "'. Name not recognised.");
     }

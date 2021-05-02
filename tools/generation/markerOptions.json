@@ -83,6 +83,46 @@
                     "defaultValue": "false"
                 }
             ]
+        },
+        {
+            "name": "IdentifierOptions",
+            "description": "Options used by the 'IdentifierMarker' class.",
+            "options": [
+                {
+                    "name": "MaxVarLength",
+                    "type": "int",
+                    "description": "The maximum length of variable identifiers (in characters)",
+                    "defaultValue": "25"
+                },
+                {
+                    "name": "MinFuncLength",
+                    "type": "int",
+                    "description": "The minimum length of function identifiers (in characters)",
+                    "defaultValue": "3"
+                },
+                {
+                    "name": "MaxFuncLength",
+                    "type": "int",
+                    "description": "The maximum length of function identifiers (in characters)",
+                    "defaultValue": "30"
+                },
+                {
+                    "name": "OneCharIdentifiers",
+                    "type": "string",
+                    "description": "Valid one character long identifiers",
+                    "defaultValue": [
+                        "c",
+                        "i",
+                        "j",
+                        "k",
+                        "n",
+                        "t",
+                        "x",
+                        "y"
+                    ],
+                    "isList": true
+                }
+            ]
         }
     ]
 }

@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 FeedbackItem::FeedbackItem(SourceLocation start, std::string comment, FeedbackSeverity severity) :
-start(start), end(end), comment(comment), severity(severity)
+start(start), end(start), comment(comment), severity(severity)
 {
     _hasEnd = false;
 };
