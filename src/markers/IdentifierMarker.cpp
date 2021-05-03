@@ -99,7 +99,7 @@ TestResult IdentifierMarker::Mark(std::string file) {
     result.testName = "IdentifierMarker";
     result.testDescription = "Checks for consistent identifier naming conventions";
     result.marksTotal = StdOptions::MarksAvailable;
-
+    result.marksAwarded = StdOptions::MarksAvailable;
     return result;
 }
 
@@ -165,7 +165,7 @@ void IdentifierMarker::ProcessNamedDecls(clang::CompilerInstance &ci, std::vecto
                 break;
             
             default:
-                throw std::invalid_argument("Unexpected DeclKind -> \"" + std::string(decl.getDeclKindName()) + "\" at " + FormatLocationRange(declBegLoc, declEndLoc));
+                // throw std::invalid_argument("Unexpected DeclKind -> \"" + std::string(decl.getDeclKindName()) + "\" at " + FormatLocationRange(declBegLoc, declEndLoc));
                 break;
         }
 

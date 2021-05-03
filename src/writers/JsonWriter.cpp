@@ -25,11 +25,10 @@ void JsonWriter::LogSingleResult(TestResult &result){
     output << "\t\t\t\"description\": \"" << result.testDescription << "\"," << std::endl;
     output << "\t\t\t\"configInfo\": \""  << result.testInfo        << "\"," << std::endl;
     output << "\t\t\t\"remarks\": \""     << result.remarks         << "\"," << std::endl;
-
-    if ( result.marksTotal != 0 ) {
-        double score = result.marksAwarded / (double) result.marksAwarded;
-        output << "\t\t\t\"score\": "       << score               << "," << std::endl;
-    }
+    
+    double score = result.marksTotal == 0? 0 : result.marksAwarded / (double) result.marksTotal;
+    
+    output << "\t\t\t\"score\": "       << score               << "," << std::endl;
     output << "\t\t\t\"marksAwarded\": "<< result.marksAwarded << "," << std::endl;
     output << "\t\t\t\"marksTotal\": "  << result.marksTotal   << "," << std::endl;
 

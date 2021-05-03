@@ -114,16 +114,22 @@ void ConditionMarker::HandleIfStmt(clang::CompilerInstance &ci, clang::IfStmt &s
 
     // filter out else ifs and ifs with no else (unless else child is a return statement)
     if ( elseStmt == NULL ) {
+        #ifdef DEBUG
         std::cout << "\tNo else -> exiting" << std::endl;
+        #endif
         return;
     } else if ( elseStmt->getStmtClass() != clang::Stmt::StmtClass::CompoundStmtClass && elseStmt->getStmtClass() != clang::Stmt::StmtClass::ReturnStmtClass) {
+        #ifdef DEBUG
         std::cout << "\tIrrelevant else type: " << elseStmt->getStmtClassName() << " -> exiting" << std::endl;
+        #endif
         return;
     }
 
     // stop if node is the else if
     if ( ParentIsIfStmt(ctx, stmt) ){
+        #ifdef DEBUG
         std::cout << "\tI am the 'else if' -> exiting" << std::endl;
+        #endif
         return;
     }
 
@@ -150,17 +156,23 @@ void ConditionMarker::HandleIfStmt(clang::CompilerInstance &ci, clang::IfStmt &s
         }
     }
     if ( ifReturn == NULL || elReturn == NULL ) {
+        #ifdef DEBUG
         std::cout << "\tif or else return statements are null (if null: " << boolToStr(ifReturn == NULL) << ", else null: " << boolToStr(elReturn == NULL) << ") -> exiting" << std::endl;
+        #endif
         return;
     } else {
+        #ifdef DEBUG
         std::cout << "\tif   return @ " << getLocationString(ifReturn->getSourceRange().getBegin(), sm) << std::endl;
         std::cout << "\telse return @ " << getLocationString(elReturn->getSourceRange().getBegin(), sm) << std::endl;
+        #endif
     }
 
     clang::IntegerLiteral *ifLiteral = GetLiteralReturnValue(ctx, *ifReturn);
     clang::IntegerLiteral *elLiteral = GetLiteralReturnValue(ctx, *elReturn);
     if ( ifLiteral == NULL || elLiteral == NULL ) {
+        #ifdef DEBUG
         std::cout << "\treturn statements not integer literals (if not: " << boolToStr(ifLiteral == NULL) << ", else not: " << boolToStr(elLiteral == NULL) << ") -> exiting" << std::endl;
+        #endif
         return;
     }
 
@@ -169,7 +181,9 @@ void ConditionMarker::HandleIfStmt(clang::CompilerInstance &ci, clang::IfStmt &s
     int elReturnValue = APIntToBool(elLiteral->getValue());
     
     if (ifReturnValue == -1 || elReturnValue == -1) {
+        #ifdef DEBUG
         std::cout << "\treturn statements not Booleans (if: " << ifReturnValue << ", else: " << elReturnValue << ") -> exiting" << std::endl;
+        #endif
         return;
     }
 
