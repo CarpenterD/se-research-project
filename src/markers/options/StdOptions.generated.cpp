@@ -11,4 +11,5 @@ void StdOptions::Initialise(std::vector<ConfigOption> &options)
 #endif
     TestName = ConfigConverter::ConvertOption<std::string>(ConfigReader::GetConfigOption(options, "TestName", "StdOptions"));
     MarksAvailable = ConfigConverter::ConvertOption<int>(ConfigReader::GetConfigOption(options, "MarksAvailable", "StdOptions"));
+    BreakOnFail = ConfigConverter::ConvertOption<bool>(ConfigReader::GetConfigOption(options, "BreakOnFail", "StdOptions"), DefaultBreakOnFail);
 }

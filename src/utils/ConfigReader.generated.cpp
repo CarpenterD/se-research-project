@@ -7,4 +7,5 @@ void ConfigReader::internal::ParseStdTestOptions(TestConfig &config)
 {
     config.TestName = ConfigConverter::ConvertOption<std::string>(ConfigReader::GetConfigOption(config.Options, "TestName", "StdOptions"));
     config.MarksAvailable = ConfigConverter::ConvertOption<int>(ConfigReader::GetConfigOption(config.Options, "MarksAvailable", "StdOptions"));
+    config.BreakOnFail = ConfigConverter::ConvertOption<bool>(ConfigReader::GetConfigOption(config.Options, "BreakOnFail", "StdOptions"), config.DefaultBreakOnFail);
 }

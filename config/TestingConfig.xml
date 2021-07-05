@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rootconfig>
+  <tests>
+    <test name="StubMarker">
+      <option name="MarksAvailable"><value>0</value></option>
+    </test>
+    <test name="FailingMarker">
+      <option name="MarksAvailable"><value>0</value></option>
+    </test>
+    <test name="FailingMarker">
+      <option name="MarksAvailable"><value>0</value></option>
+      <option name="BreakOnFail"><value>true</value></option>
+    </test>
+    <test name="StubMarker">
+      <option name="MarksAvailable"><value>0</value></option>
+    </test>
+  </tests>
+  <output name="DebugLogger">
+  </output>
+</rootconfig> 

@@ -9,6 +9,12 @@
             "name": "marksAvailable",
             "type": "int",
             "description": "The total number of marks available for this test"
+        },
+        {
+            "name": "breakOnFail",
+            "type": "bool",
+            "description": "Whether or not to stop testing if this step fails",
+            "defaultValue": "false"
         }
     ],
     "optionSets": [

@@ -10,6 +10,7 @@
 #include "IndentationCheck.hpp"
 #include "ConditionMarker.hpp"
 #include "IdentifierMarker.hpp"
+#include "FailingMarker.hpp"
 
 Marker* MarkerRegistry::CreateMarker(TestConfig config)
 {    
@@ -19,6 +20,8 @@ Marker* MarkerRegistry::CreateMarker(TestConfig config)
         return new StubMarker(config);
     } else if (markerName=="SimpleMarker"){
         return new SimpleMarker(config);
+    } else if (markerName=="FailingMarker"){
+        return new FailingMarker(config);
     } else if (markerName=="FunctionLengthMarker"){
         return new FunctionLengthMarker(config);
     } else if (markerName=="IndentationCheck"){

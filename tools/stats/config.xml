@@ -3,8 +3,8 @@
   <tests>
     <test name="FunctionLengthMarker">
       <option name="MarksAvailable"><value>0</value></option>
-      <option name="SuggestionThreshold"><value>10</value></option>
-      <option name="AcceptableThreshold"><value>20</value></option>
+      <option name="SuggestionThreshold"><value>30</value></option>
+      <option name="AcceptableThreshold"><value>40</value></option>
     </test>
     <test name="IndentationCheck">
       <option name="MarksAvailable"><value>1</value></option>
